@@ -1,0 +1,69 @@
+{
+  "name": "nunjucks-template",
+  "displayName": "nunjucks-template",
+  "description": "",
+  "version": "0.0.1",
+  "publisher": "eseom",
+  "engines": {
+    "vscode": "^1.19.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:extension.sayHello",
+    "onLanguage:njk"
+  ],
+  "main": "./out/extension",
+  "contributes": {
+    "snippets": [
+      {
+        "language": "njk",
+        "path": "./snippets.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "extension.sayHello",
+        "title": "Hello World"
+      }
+    ],
+    "languages": [
+      {
+        "id": "njk",
+        "aliases": [
+          "Nunjucks",
+          "njk"
+        ],
+        "extensions": [
+          "njk",
+          "html"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "njk",
+        "scopeName": "source.nunjucks",
+        "path": "./syntaxes/njk.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^7.0.43",
+    "typescript": "^2.6.1",
+    "vscode": "^1.1.10"
+  },
+  "dependencies": {
+    "prettydiff2": "^2.2.7"
+  }
+}
