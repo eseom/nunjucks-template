@@ -2,7 +2,7 @@
   "name": "nunjucks-template",
   "displayName": "nunjucks-template",
   "description": "",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "eseom",
   "engines": {
     "vscode": "^1.19.0"
@@ -45,8 +45,8 @@
     "grammars": [
       {
         "language": "njk",
-        "scopeName": "source.nunjucks",
-        "path": "./syntaxes/njk.tmLanguage.json"
+        "scopeName": "text.html.nunjucks",
+        "path": "./syntaxes/njk.tmLanguage"
       }
     ]
   },
