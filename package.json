@@ -2,7 +2,7 @@
   "name": "nunjucks-template",
   "displayName": "nunjucks-template",
   "description": "Formatting, Syntax Highlighting, Hover, and Snippets for Nunjucks",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/eseom/nunjucks-template"
@@ -23,7 +23,7 @@
     "snippets": [
       {
         "language": "njk",
-        "path": "./src/snippets/snippets.json"
+        "path": "./assets/snippets/snippets.json"
       }
     ],
     "commands": [
@@ -43,14 +43,14 @@
           ".njk",
           ".html"
         ],
-        "configuration": "./src/languages/configuration.json"
+        "configuration": "./assets/languages/configuration.json"
       }
     ],
     "grammars": [
       {
         "language": "njk",
         "scopeName": "text.html.nunjucks",
-        "path": "./src/syntaxes/njk.tmLanguage"
+        "path": "./assets/syntaxes/njk.tmLanguage"
       }
     ]
   },
