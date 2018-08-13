@@ -6,16 +6,7 @@ This is the Nunjucks-supporting extension for vscode
 
 - by default, .html, .njk files supported
 
-## Release Notes
+## links
 
-### 0.0.4
-
-syntax highlighting
-
-### 0.0.1
-
-Initial release
-
------------------------------------------------------------------------------------------------------------
-
-**Enjoy!**
+- https://github.com/eseom/nunjucks-template
+- https://marketplace.visualstudio.com/items?itemName=eseom.nunjucks-template#overview
