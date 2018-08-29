@@ -12,7 +12,7 @@
     "vscode": "^1.19.0"
   },
   "categories": [
-    "Languages"
+    "Language Packs"
   ],
   "icon": "images/icon.png",
   "activationEvents": [
@@ -49,9 +49,14 @@
     ],
     "grammars": [
       {
+				"language": "njk",
+				"scopeName": "source.njk",
+				"path": "./assets/syntaxes/njk.json"
+			},
+      {
         "language": "njk",
-        "scopeName": "text.html.nunjucks",
-        "path": "./assets/syntaxes/njk.tmLanguage"
+        "scopeName": "text.html.njk",
+        "path": "./assets/syntaxes/njk-html.json"
       }
     ]
   },
