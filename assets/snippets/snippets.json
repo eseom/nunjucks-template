@@ -1,20 +1,33 @@
 {
+  "extends": {
+		"prefix": "n-extends",
+		"body": [
+			"{% extends ${1:name} %}"
+		],
+		"description": "Nunjucks \"extends\" snippet"
+	},
   "block": {
-    "prefix": "block",
+    "prefix": "n-block",
     "body": "{% block ${1:name} %}\n{% endblock ${1:name} %}",
     "description": "block",
     "scope": "text.html.njk"
   },
   "if": {
-    "prefix": "if",
+    "prefix": "n-if",
     "body": "{% if ${1:condition} %}\n{% endif %}",
     "description": "if",
     "scope": "text.html.njk"
   },
   "for": {
-    "prefix": "for",
+    "prefix": "n-for",
     "body": "{% for ${1:variable} in ${2:iterator} %}\n{% endfor %}",
     "description": "for",
+    "scope": "text.html.njk"
+  },
+  "macro": {
+    "prefix": "n-macro",
+    "body": "{% macro ${1:name}() %}\n{% endmacro %}",
+    "description": "Nunjucks macro",
     "scope": "text.html.njk"
   }
 }
