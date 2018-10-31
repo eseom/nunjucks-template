@@ -1,11 +1,11 @@
 {
   "extends": {
-		"prefix": "n-extends",
-		"body": [
-			"{% extends ${1:name} %}"
-		],
-		"description": "Nunjucks \"extends\" snippet"
-	},
+    "prefix": "n-extends",
+    "body": [
+      "{% extends ${1:name} %}"
+    ],
+    "description": "Nunjucks \"extends\" snippet"
+  },
   "block": {
     "prefix": "n-block",
     "body": "{% block ${1:name} %}\n{% endblock ${1:name} %}",
