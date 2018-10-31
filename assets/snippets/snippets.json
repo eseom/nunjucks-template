@@ -29,5 +29,11 @@
     "body": "{% macro ${1:name}() %}\n{% endmacro %}",
     "description": "Nunjucks macro",
     "scope": "text.html.njk"
+  },
+  "set": {
+    "prefix": "n-set",
+    "body": "{% set ${1:name} = ${2:value} %}",
+    "description": "Nunjucks set",
+    "scope": "text.html.njk"
   }
 }
