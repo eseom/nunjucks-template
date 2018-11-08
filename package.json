@@ -49,10 +49,10 @@
     ],
     "grammars": [
       {
-				"language": "njk",
-				"scopeName": "source.njk",
-				"path": "./assets/syntaxes/njk.json"
-			},
+        "language": "njk",
+        "scopeName": "source.njk",
+        "path": "./assets/syntaxes/njk.json"
+      },
       {
         "language": "njk",
         "scopeName": "text.html.njk",
