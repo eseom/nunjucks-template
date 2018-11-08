@@ -4,7 +4,7 @@ This is the Nunjucks-supporting extension for vscode with complete features.
 
 ## no configurations
 
-- By default, autodetects .nj, .njk, .html files.
+- By default, autodetects .nj, .njk, .html, .tpl files.
 
 ## snippets
 
