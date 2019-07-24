@@ -41,8 +41,7 @@
           "njk"
         ],
         "extensions": [
-          ".njk",
-          ".html"
+          ".njk"
         ],
         "configuration": "./assets/languages/configuration.json"
       }
@@ -58,7 +57,18 @@
         "scopeName": "text.html.njk",
         "path": "./assets/syntaxes/njk-html.json"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "nunjucks-template",
+      "properties": {
+        "nunjucks-template.sample": {
+          "type": "boolean",
+          "default": true,
+          "description": "a sample configuration"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -71,7 +81,7 @@
     "@types/mocha": "^2.2.42",
     "@types/node": "^7.0.43",
     "typescript": "^2.6.1",
-    "vscode": "^1.1.10"
+    "vscode": "^1.1.35"
   },
   "dependencies": {
     "prettydiff2": "^2.2.7"

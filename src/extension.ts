@@ -8,6 +8,8 @@ import * as prettydiff from 'prettydiff2'
 // const functionsArr = require('./functions');
 import functions from './functions'
 
+// const config = vscode.workspace.getConfiguration('nunjucks-template');
+
 function createHover(snippet, type) {
   const example =
     typeof snippet.example == 'undefined' ? '' : snippet.example;
@@ -47,7 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.languages.registerDocumentFormattingEditProvider('njk', {
       provideDocumentFormattingEdits(document, options, token) {
-        // entire contnets
+        // entire contents
         const start = new vscode.Position(0, 0);
         const end = new vscode.Position(
           document.lineCount - 1,
