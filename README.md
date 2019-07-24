@@ -2,9 +2,22 @@
 
 This is the Nunjucks-supporting extension for vscode with complete features.
 
-## no configurations
+## configurations
 
-- By default, autodetects .nj, .njk, .html, .tpl files.
+- By default, detects .nj, .njk files automatically.
+- Additionally, use `files.associations`
+```
+"files.associations": {
+  "*.html": "njk"
+},
+```
+- For vscode embedded emmet, notify that `njk` is html file type
+
+```
+"emmet.includeLanguages": {
+  "njk": "html"
+},
+```
 
 ## snippets
 

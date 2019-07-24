@@ -4,9 +4,7 @@
   "comment": "Nunjucks Template",
   "fileTypes": [
     "nj",
-    "njk",
-    "html",
-    "tpl"
+    "njk"
   ],
   "foldingStartMarker": "({%\\s*(block|filter|for|if|macro|raw))",
   "foldingStopMarker": "({%\\s*(endblock|endfilter|endfor|endif|endmacro|endraw)\\s*%})",
