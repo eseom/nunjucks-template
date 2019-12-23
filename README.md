@@ -19,6 +19,13 @@ This is the Nunjucks-supporting extension for vscode with complete features.
 },
 ```
 
+- for vscode-icons ([issue #6](https://github.com/eseom/nunjucks-template/issues/6))
+```
+"vsicons.associations.files": [
+  { "icon": "nunjucks", "extensions": ["njk"], "format": "svg" }
+],
+```
+
 ## snippets
 
 | Trigger        | Snippet                              |
