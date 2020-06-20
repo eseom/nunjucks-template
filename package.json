@@ -16,7 +16,6 @@
   ],
   "icon": "images/icon.png",
   "activationEvents": [
-    "onCommand:extension.sayHello",
     "onLanguage:njk"
   ],
   "main": "./out/extension",
@@ -57,18 +56,7 @@
         "scopeName": "text.html.njk",
         "path": "./assets/syntaxes/njk-html.json"
       }
-    ],
-    "configuration": {
-      "type": "object",
-      "title": "nunjucks-template",
-      "properties": {
-        "nunjucks-template.sample": {
-          "type": "boolean",
-          "default": true,
-          "description": "a sample configuration"
-        }
-      }
-    }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
