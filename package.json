@@ -27,10 +27,6 @@
       }
     ],
     "commands": [
-      {
-        "command": "extension.sayHello",
-        "title": "Hello World"
-      }
     ],
     "languages": [
       {
