@@ -43,7 +43,7 @@
         }
       ],
       "end": "-?}}",
-      "name": "meta.scope.njk.variable",
+      "name": "comment.block.njk",
       "patterns": [
         {
           "include": "#expression"
@@ -58,7 +58,7 @@
         }
       ],
       "end": "-?%}",
-      "name": "meta.scope.njk.tag",
+      "name": "comment.block.njk",
       "patterns": [
         {
           "include": "#expression"
