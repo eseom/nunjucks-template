@@ -1,38 +1,17 @@
-import * as vscode from 'vscode'
-import * as path from 'path'
-import * as fs from 'fs'
-import * as mkdirp from 'mkdirp'
-import * as prettydiff from 'prettydiff2'
-
-// const snippetsArr = require('./hover/filters.json');
-// const functionsArr = require('./functions');
-import functions from './functions'
-
-// const config = vscode.workspace.getConfiguration('nunjucks-template');
-
-function createHover(snippet, type) {
-  const example =
-    typeof snippet.example == 'undefined' ? '' : snippet.example;
-  const description =
-    typeof snippet.description == 'undefined' ? '' : snippet.description;
-  return new vscode.Hover({
-    language: type,
-    value: description + '\n\n' + example
-  });
-}
+import * as prettydiff from "prettydiff2";
+import * as vscode from "vscode";
 
 const prettyDiff = (document, range, options) => {
-  const result = [];
-  const content = document.getText(range)
-  const workspaceConfig = vscode.workspace.getConfiguration('editor');
-  const activeEditorOptions = vscode.window.activeTextEditor.options
-  const insize = activeEditorOptions.tabSize || workspaceConfig.tabSize
-  const inchar = activeEditorOptions.insertSpaces ? ' ' : '\t'
+  const content = document.getText(range);
+  const workspaceConfig = vscode.workspace.getConfiguration("editor");
+  const activeEditorOptions = vscode.window.activeTextEditor.options;
+  const insize = activeEditorOptions.tabSize || workspaceConfig.tabSize;
+  const inchar = activeEditorOptions.insertSpaces ? " " : "\t";
 
   const newText = prettydiff({
     source: content,
-    lang: 'twig',
-    mode: 'beautify',
+    lang: "twig",
+    mode: "beautify",
     insize,
     inchar,
     // newline: vscodeConfig.newLine,
@@ -41,13 +20,12 @@ const prettyDiff = (document, range, options) => {
     // methodchain: vscodeConfig.methodchain,
     // ternaryline: vscodeConfig.ternaryLine,
   });
-  result.push(vscode.TextEdit.replace(range, newText));
-  return result;
+  return [vscode.TextEdit.replace(range, newText)];
 };
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
-    vscode.languages.registerDocumentFormattingEditProvider('njk', {
+    vscode.languages.registerDocumentFormattingEditProvider("njk", {
       provideDocumentFormattingEdits(document, options, token) {
         // entire contents
         const start = new vscode.Position(0, 0);
@@ -57,10 +35,51 @@ export function activate(context: vscode.ExtensionContext) {
         );
         const rng = new vscode.Range(start, end);
         return prettyDiff(document, rng, options);
-      }
+      },
     })
-  )
+  );
+
+  const EMPTY_ELEMENTS: string[] = [
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "keygen",
+    "link",
+    "menuitem",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+  ];
+  vscode.languages.setLanguageConfiguration("njk", {
+    onEnterRules: [
+      {
+        beforeText: new RegExp(
+          `<(?!(?:${EMPTY_ELEMENTS.join(
+            "|"
+          )}))([_:\\w][_:\\w-.\\d]*)([^/>]*(?!/)>)[^<]*$`,
+          "i"
+        ),
+        afterText: /^<\/([_:\w][_:\w-.\d]*)\s*>/i,
+        action: { indentAction: vscode.IndentAction.IndentOutdent },
+      },
+      {
+        beforeText: new RegExp(
+          `<(?!(?:${EMPTY_ELEMENTS.join(
+            "|"
+          )}))(\\w[\\w\\d]*)([^/>]*(?!/)>)[^<]*$`,
+          "i"
+        ),
+        action: { indentAction: vscode.IndentAction.Indent },
+      },
+    ],
+  });
 }
 
-export function deactivate() {
-}
+export function deactivate() {}
