@@ -2,7 +2,7 @@
   "name": "nunjucks-template",
   "displayName": "Nunjucks Template",
   "description": "Formatting, Syntax Highlighting, Hover, and Snippets for Nunjucks",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/eseom/nunjucks-template"
@@ -26,8 +26,7 @@
         "path": "./assets/snippets/snippets.json"
       }
     ],
-    "commands": [
-    ],
+    "commands": [],
     "languages": [
       {
         "id": "njk",
