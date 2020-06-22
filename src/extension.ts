@@ -19,6 +19,7 @@ const prettyDiff = (document, range, options) => {
     // wrap: vscodeConfig.wrap,
     // methodchain: vscodeConfig.methodchain,
     // ternaryline: vscodeConfig.ternaryLine,
+    jekyll: true,
   });
   return [vscode.TextEdit.replace(range, newText)];
 };

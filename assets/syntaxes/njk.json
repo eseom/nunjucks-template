@@ -64,6 +64,16 @@
           "include": "#expression"
         }
       ]
+    },
+    {
+      "begin": "----?",
+      "captures": [
+        {
+          "name": "entity.other.njk.delimiter.comment"
+        }
+      ],
+      "end": "-?---",
+      "name": "comment.block.njk"
     }
   ],
   "repository": {
