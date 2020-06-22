@@ -2,6 +2,12 @@
 
 This is the Nunjucks-supporting extension for vscode with complete features.
 
+# feature
+
+- nunjucks template syntax
+- nunjucks formatter with prettydiff2
+- yaml syntax
+
 ## configurations
 
 - By default, detects .nj, .njk files automatically.
