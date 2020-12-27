@@ -10,7 +10,7 @@ const prettyDiff = (document, range, options) => {
 
   const newText = prettydiff({
     source: content,
-    lang: "twig",
+    lang: "nunjucks",
     mode: "beautify",
     insize,
     inchar,
