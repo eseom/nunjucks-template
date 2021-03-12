@@ -67,6 +67,6 @@
     "vscode": "^1.1.35"
   },
   "dependencies": {
-    "prettydiff2": "^2.2.7"
+    "prettydiff": "^101.2.6"
   }
 }
