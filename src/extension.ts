@@ -1,27 +1,26 @@
-import * as prettydiff from "prettydiff2";
+// import * as prettydiff from "prettydiff";
 import * as vscode from "vscode";
 
-const prettyDiff = (document, range, options) => {
-  const content = document.getText(range);
+const prettydiff = require('prettydiff')
+
+const prettyDiffWrapper = (document, range, options) => {
+  const source = document.getText(range);
   const workspaceConfig = vscode.workspace.getConfiguration("editor");
   const activeEditorOptions = vscode.window.activeTextEditor.options;
-  const insize = activeEditorOptions.tabSize || workspaceConfig.tabSize;
+  const indent_size = activeEditorOptions.tabSize || workspaceConfig.tabSize;
   const inchar = activeEditorOptions.insertSpaces ? " " : "\t";
 
-  const newText = prettydiff({
-    source: content,
+  prettydiff.options = {
+    ...prettydiff.options,
+    source,
     lang: "twig",
     mode: "beautify",
-    insize,
+    indent_size,
     inchar,
-    // newline: vscodeConfig.newLine,
-    // objsort: vscodeConfig.methodChain,
-    // wrap: vscodeConfig.wrap,
-    // methodchain: vscodeConfig.methodchain,
-    // ternaryline: vscodeConfig.ternaryLine,
     jekyll: true,
-  });
-  return [vscode.TextEdit.replace(range, newText)];
+  }
+
+  return [vscode.TextEdit.replace(range, prettydiff())];
 };
 
 export function activate(context: vscode.ExtensionContext) {
@@ -35,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
           document.lineAt(document.lineCount - 1).text.length
         );
         const rng = new vscode.Range(start, end);
-        return prettyDiff(document, rng, options);
+        return prettyDiffWrapper(document, rng, options);
       },
     })
   );
