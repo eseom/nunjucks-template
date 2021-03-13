@@ -9,6 +9,7 @@
   "foldingStartMarker": "({%\\s*(block|filter|for|if|macro|raw))",
   "foldingStopMarker": "({%\\s*(endblock|endfilter|endfor|endif|endmacro|endraw)\\s*%})",
   "patterns": [
+    {"include": "#frontMatter"},
     {
       "begin": "({%)\\s*(raw)\\s*(%})",
       "captures": {
@@ -77,6 +78,14 @@
     }
   ],
   "repository": {
+    "frontMatter": {
+      "begin": "\\A-{3}\\s*$",
+      "contentName": "meta.embedded.block.frontmatter",
+      "patterns": [{
+        "include": "source.yaml"
+      }],
+    "end": "(^|\\G)-{3}|\\.{3}\\s*$"
+    },
     "escaped_char": {
       "match": "\\\\x[0-9A-F]{2}",
       "name": "constant.character.escape.hex.njk"
