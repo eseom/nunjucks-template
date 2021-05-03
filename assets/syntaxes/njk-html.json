@@ -11,7 +11,7 @@
       "include": "source.njk"
     },
     {
-      "include": "text.html.twig"
+      "include": "text.html.basic"
     }
   ]
 }
