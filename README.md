@@ -27,6 +27,11 @@ This is the Nunjucks-supporting extension for vscode with complete features.
 },
 ```
 
+- max line length follows standard vscode html.format.wrapLineLength
+```json
+"html.format.wrapLineLength": 120
+```
+
 - for vscode-icons ([issue #6](https://github.com/eseom/nunjucks-template/issues/6))
 
 ```json

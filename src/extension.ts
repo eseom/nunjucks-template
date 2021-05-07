@@ -6,9 +6,11 @@ const prettydiff = require('prettydiff')
 const prettyDiffWrapper = (document, range, options) => {
   const source = document.getText(range);
   const workspaceConfig = vscode.workspace.getConfiguration("editor");
+  const htmlConfig = vscode.workspace.getConfiguration("html");
   const activeEditorOptions = vscode.window.activeTextEditor.options;
   const indent_size = activeEditorOptions.tabSize || workspaceConfig.tabSize;
   const inchar = activeEditorOptions.insertSpaces ? " " : "\t";
+  const wrap = htmlConfig.format.wrapLineLength
 
   prettydiff.options = {
     // ...prettydiff.options,
@@ -90,7 +92,7 @@ const prettyDiffWrapper = (document, range, options) => {
     variable_list: 'none',
     version: false,
     vertical: false,
-    wrap: 0,
+    wrap,
     source,
     lang: "twig",
     mode: "beautify",
