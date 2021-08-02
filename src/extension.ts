@@ -72,7 +72,7 @@ const prettyDiffWrapper = (document, range, options) => {
     output: '',
     parse_format: 'parallel',
     parse_space: false,
-    preserve: 0,
+    preserve: 3,
     preserve_comment: false,
     preserve_text: false,
     quote: false,
