@@ -50,6 +50,16 @@
         "language": "njk",
         "scopeName": "text.html.njk",
         "path": "./assets/syntaxes/njk-html.json"
+      },
+      {
+        "language": "html",
+        "scopeName": "source.njk",
+        "path": "./assets/syntaxes/njk.json"
+      },
+      {
+        "language": "html",
+        "scopeName": "text.html.njk",
+        "path": "./assets/syntaxes/njk-html.json"
       }
     ]
   },
