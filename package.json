@@ -16,40 +16,50 @@
   ],
   "icon": "images/icon.png",
   "activationEvents": [
-    "onLanguage:njk"
+    "onLanguage:nunjucks"
   ],
   "main": "./out/extension",
   "contributes": {
-    "snippets": [
-      {
-        "language": "njk",
-        "path": "./assets/snippets/snippets.json"
-      }
-    ],
     "commands": [],
     "languages": [
       {
-        "id": "njk",
+        "id": "nunjucks",
         "aliases": [
           "Nunjucks",
+          "nunjucks",
           "njk"
         ],
         "extensions": [
-          ".njk"
+          ".nunjucks",
+          ".nunjs",
+		  ".nunj",
+		  ".nj",
+		  ".njk",
+		  ".html",
+		  ".htm",
+		  "template",
+		  ".tmpl",
+		  ".tpl"
         ],
         "configuration": "./assets/languages/configuration.json"
       }
     ],
     "grammars": [
       {
-        "language": "njk",
+        "language": "nunjucks",
         "scopeName": "source.njk",
         "path": "./assets/syntaxes/njk.json"
       },
       {
-        "language": "njk",
+        "language": "nunjucks",
         "scopeName": "text.html.njk",
         "path": "./assets/syntaxes/njk-html.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "nunjucks",
+        "path": "./assets/snippets/snippets.json"
       }
     ]
   },
