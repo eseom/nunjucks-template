@@ -2,7 +2,7 @@
   "name": "nunjucks-template",
   "displayName": "Nunjucks Template",
   "description": "Formatting, Syntax Highlighting, Hover, and Snippets for Nunjucks",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/eseom/nunjucks-template"
@@ -20,6 +20,16 @@
   ],
   "main": "./out/extension",
   "contributes": {
+    "configuration": {
+      "title": "NunjucksTemplate",
+      "properties": {
+        "nunjucksTemplate.preserveEmptyLine": {
+          "type": "number",
+          "default": 0,
+          "description": "empty lines number to keep at formatting"
+        }
+      }
+    },
     "snippets": [
       {
         "language": "njk",

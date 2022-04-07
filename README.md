@@ -13,6 +13,16 @@ This is the Nunjucks-supporting extension for vscode with complete features.
 - By default, detects .nj, .njk files automatically.
 - Additionally, use `files.associations`
 
+#### extension's own configurations
+
+```json
+"nunjucksTemplate.preserveEmptyLine": 3
+```
+
+(suggested at issue PR #30 by @sdegutis)
+
+#### other configurations
+
 ```json
 "files.associations": {
   "*.html": "njk"
@@ -28,6 +38,7 @@ This is the Nunjucks-supporting extension for vscode with complete features.
 ```
 
 - max line length follows standard vscode html.format.wrapLineLength
+
 ```json
 "html.format.wrapLineLength": 120
 ```
