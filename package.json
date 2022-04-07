@@ -2,11 +2,12 @@
   "name": "nunjucks-template",
   "displayName": "Nunjucks Template",
   "description": "Formatting, Syntax Highlighting, Hover, and Snippets for Nunjucks",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/eseom/nunjucks-template"
   },
+  "license": "MIT",
   "publisher": "eseom",
   "engines": {
     "vscode": "^1.19.0"
