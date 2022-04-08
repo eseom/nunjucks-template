@@ -43,10 +43,10 @@
         "id": "njk",
         "aliases": [
           "Nunjucks",
-          "njk"
+          "jinja"
         ],
         "extensions": [
-          ".njk"
+          ".jinja"
         ],
         "configuration": "./assets/languages/configuration.json"
       }
