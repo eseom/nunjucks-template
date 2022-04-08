@@ -1,11 +1,11 @@
 {
-  "name": "nunjucks-template",
-  "displayName": "Nunjucks Template",
-  "description": "Formatting, Syntax Highlighting, Hover, and Snippets for Nunjucks",
+  "name": "jinja-family-template",
+  "displayName": "Jinja Family Template",
+  "description": "Formatting, Syntax Highlighting, Hover, and Snippets for Jinja family",
   "version": "0.5.2",
   "repository": {
     "type": "git",
-    "url": "https://github.com/eseom/nunjucks-template"
+    "url": "https://github.com/eseom/jinja-family-template"
   },
   "license": "MIT",
   "publisher": "eseom",
@@ -17,14 +17,14 @@
   ],
   "icon": "images/icon.png",
   "activationEvents": [
-    "onLanguage:njk"
+    "onLanguage:jinja-family"
   ],
   "main": "./out/extension",
   "contributes": {
     "configuration": {
-      "title": "NunjucksTemplate",
+      "title": "JinjaFamilyTemplate",
       "properties": {
-        "nunjucksTemplate.preserveEmptyLine": {
+        "jinjaFamilyTemplate.preserveEmptyLine": {
           "type": "number",
           "default": 0,
           "description": "empty lines number to keep at formatting"
@@ -33,19 +33,21 @@
     },
     "snippets": [
       {
-        "language": "njk",
+        "language": "jinja-family",
         "path": "./assets/snippets/snippets.json"
       }
     ],
     "commands": [],
     "languages": [
       {
-        "id": "njk",
+        "id": "jinja-family",
         "aliases": [
-          "Nunjucks",
+          "Jinja Family",
           "jinja"
         ],
         "extensions": [
+          ".njk",
+          ".twig",
           ".jinja"
         ],
         "configuration": "./assets/languages/configuration.json"
@@ -53,19 +55,19 @@
     ],
     "grammars": [
       {
-        "language": "njk",
-        "scopeName": "source.njk",
-        "path": "./assets/syntaxes/njk.json"
+        "language": "jinja-family",
+        "scopeName": "source.jinja-family",
+        "path": "./assets/syntaxes/jinja-family.json"
       },
       {
-        "language": "njk",
+        "language": "jinja-family",
         "scopeName": "source.html",
         "path": "./assets/syntaxes/html.json"
       },
       {
-        "language": "njk",
-        "scopeName": "text.html.njk",
-        "path": "./assets/syntaxes/njk-html.json"
+        "language": "jinja-family",
+        "scopeName": "text.html.jinja-family",
+        "path": "./assets/syntaxes/jinja-family-html.json"
       }
     ]
   },

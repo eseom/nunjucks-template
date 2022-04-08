@@ -1,8 +1,8 @@
 {
-  "name": "njk-html",
-  "scopeName": "text.html.njk",
-  "comment": "Nunjucks Template",
-  "fileTypes": ["nj", "jinja", "html"],
+  "name": "jinja-family-html",
+  "scopeName": "text.html.jinja-family",
+  "comment": "Jinja Family Template",
+  "fileTypes": ["njk", "twig", "jinja"],
   "firstLineMatch": "^{% extends [\"'][^\"']+[\"'] %}",
   "foldingStartMarker": "(<(?i:(head|table|tr|div|style|script|ul|ol|form|dl))\\b.*?>|{%\\s*(block|filter|for|if|macro|raw))",
   "foldingStopMarker": "(</(?i:(head|table|tr|div|style|script|ul|ol|form|dl))\\b.*?>|{%\\s*(endblock|endfilter|endfor|endif|endmacro|endraw)\\s*%})",
@@ -11,7 +11,7 @@
       "include": "source.html"
     },
     {
-      "include": "source.njk"
+      "include": "source.jinja-family"
     }
   ]
 }

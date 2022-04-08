@@ -1,22 +1,22 @@
-# nunjucks-template
+# jinja-family-template
 
-This is the Nunjucks-supporting extension for vscode with complete features.
+This is a jinja-family(jinja, twig, and nunjucks etc) supporting extension for vscode with complete features.
 
 # feature
 
-- nunjucks template syntax
-- nunjucks formatter with prettydiff2
-- yaml syntax
+- jinja template *syntax*
+- jinja formatter with *prettydiff2*
+- yaml syntax (frontmatter)
 
 ## configurations
 
-- By default, detects .nj, .njk files automatically.
+- By default, detects .jinja, .njk, .twig files automatically.
 - Additionally, use `files.associations`
 
 #### extension's own configurations
 
 ```json
-"nunjucksTemplate.preserveEmptyLine": 3
+"jinjaFamilyTemplate.preserveEmptyLine": 3
 ```
 
 (suggested at issue PR #30 by @sdegutis)
@@ -25,15 +25,15 @@ This is the Nunjucks-supporting extension for vscode with complete features.
 
 ```json
 "files.associations": {
-  "*.html": "njk"
+  "*.html": "jinja-family"
 },
 ```
 
-- For vscode embedded emmet, notify that `njk` is html file type
+- For vscode embedded emmet, notify that `jinja-family` is html file type
 
 ```json
 "emmet.includeLanguages": {
-  "njk": "html"
+  "jinja-family": "html"
 },
 ```
 
@@ -43,11 +43,11 @@ This is the Nunjucks-supporting extension for vscode with complete features.
 "html.format.wrapLineLength": 120
 ```
 
-- for vscode-icons ([issue #6](https://github.com/eseom/nunjucks-template/issues/6))
+- for vscode-icons ([issue #6](https://github.com/eseom/jinja-family-template/issues/6))
 
 ```json
 "vsicons.associations.files": [
-  { "icon": "nunjucks", "extensions": ["njk"], "format": "svg" }
+  { "icon": "jinja", "extensions": ["jinja"], "format": "svg" }
 ],
 ```
 
@@ -55,7 +55,9 @@ This is the Nunjucks-supporting extension for vscode with complete features.
 
 ```json
 "material-icon-theme.files.associations": {
-  "*.html": "nunjucks"
+  "*.html": "jinja",
+  "*.njk": "jinja",
+  "*.twig": "jinja"
 },
 ```
 
@@ -71,5 +73,5 @@ This is the Nunjucks-supporting extension for vscode with complete features.
 
 ## links
 
-- https://github.com/eseom/nunjucks-template
-- https://marketplace.visualstudio.com/items?itemName=eseom.nunjucks-template#overview
+- https://github.com/eseom/jinja-family-template
+- https://marketplace.visualstudio.com/items?itemName=eseom.jinja-family-template#overview

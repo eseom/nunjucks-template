@@ -4,36 +4,36 @@
     "body": [
       "{% extends ${1:name} %}"
     ],
-    "description": "Nunjucks \"extends\" snippet"
+    "description": "Jinja Family \"extends\" snippet"
   },
   "block": {
     "prefix": "n-block",
     "body": "{% block ${1:name} %}\n{% endblock ${1:name} %}",
     "description": "block",
-    "scope": "text.html.njk"
+    "scope": "text.html.jinja-family"
   },
   "if": {
     "prefix": "n-if",
     "body": "{% if ${1:condition} %}\n{% endif %}",
     "description": "if",
-    "scope": "text.html.njk"
+    "scope": "text.html.jinja-family"
   },
   "for": {
     "prefix": "n-for",
     "body": "{% for ${1:variable} in ${2:iterator} %}\n{% endfor %}",
     "description": "for",
-    "scope": "text.html.njk"
+    "scope": "text.html.jinja-family"
   },
   "macro": {
     "prefix": "n-macro",
     "body": "{% macro ${1:name}() %}\n{% endmacro %}",
-    "description": "Nunjucks macro",
-    "scope": "text.html.njk"
+    "description": "Jinja Family macro",
+    "scope": "text.html.jinja-family"
   },
   "set": {
     "prefix": "n-set",
     "body": "{% set ${1:name} = ${2:value} %}",
-    "description": "Nunjucks set",
-    "scope": "text.html.njk"
+    "description": "Jinja Family set",
+    "scope": "text.html.jinja-family"
   }
 }

@@ -1,8 +1,8 @@
 {
-  "name": "njk",
-  "scopeName": "source.njk",
-  "comment": "Nunjucks Template",
-  "fileTypes": ["nj", "njk"],
+  "name": "jinja-family",
+  "scopeName": "source.jinja-family",
+  "comment": "Jinja Family Template",
+  "fileTypes": ["njk", "twig", "jinja"],
   "foldingStartMarker": "({%\\s*(block|filter|for|if|macro|raw))",
   "foldingStopMarker": "({%\\s*(endblock|endfilter|endfor|endif|endmacro|endraw)\\s*%})",
   "patterns": [
@@ -11,37 +11,37 @@
       "begin": "({%)\\s*(raw)\\s*(%})",
       "captures": {
         "1": {
-          "name": "entity.other.njk.delimiter.tag"
+          "name": "entity.other.jinja-family.delimiter.tag"
         },
         "2": {
-          "name": "keyword.control.njk"
+          "name": "keyword.control.jinja-family"
         },
         "3": {
-          "name": "entity.other.njk.delimiter.tag"
+          "name": "entity.other.jinja-family.delimiter.tag"
         }
       },
       "end": "({%)\\s*(endraw)\\s*(%})",
-      "name": "comment.block.njk.raw"
+      "name": "comment.block.jinja-family.raw"
     },
     {
       "begin": "{#-?",
       "captures": [
         {
-          "name": "entity.other.njk.delimiter.comment"
+          "name": "entity.other.jinja-family.delimiter.comment"
         }
       ],
       "end": "-?#}",
-      "name": "comment.block.njk"
+      "name": "comment.block.jinja-family"
     },
     {
       "begin": "{{-?",
       "captures": [
         {
-          "name": "entity.other.njk.delimiter.variable"
+          "name": "entity.other.jinja-family.delimiter.variable"
         }
       ],
       "end": "-?}}",
-      "name": "comment.block.njk",
+      "name": "comment.block.jinja-family",
       "patterns": [
         {
           "include": "#expression"
@@ -52,11 +52,11 @@
       "begin": "{%-?",
       "captures": [
         {
-          "name": "entity.other.njk.delimiter.tag"
+          "name": "entity.other.jinja-family.delimiter.tag"
         }
       ],
       "end": "-?%}",
-      "name": "comment.block.njk",
+      "name": "comment.block.jinja-family",
       "patterns": [
         {
           "include": "#expression"
@@ -67,11 +67,11 @@
       "begin": "----?",
       "captures": [
         {
-          "name": "entity.other.njk.delimiter.comment"
+          "name": "entity.other.jinja-family.delimiter.comment"
         }
       ],
       "end": "-?---",
-      "name": "comment.block.njk"
+      "name": "comment.block.jinja-family"
     }
   ],
   "repository": {
@@ -87,18 +87,18 @@
     },
     "escaped_char": {
       "match": "\\\\x[0-9A-F]{2}",
-      "name": "constant.character.escape.hex.njk"
+      "name": "constant.character.escape.hex.jinja-family"
     },
     "escaped_unicode_char": {
       "captures": {
         "1": {
-          "name": "constant.character.escape.unicode.16-bit-hex.njk"
+          "name": "constant.character.escape.unicode.16-bit-hex.jinja-family"
         },
         "2": {
-          "name": "constant.character.escape.unicode.32-bit-hex.njk"
+          "name": "constant.character.escape.unicode.32-bit-hex.jinja-family"
         },
         "3": {
-          "name": "constant.character.escape.unicode.name.njk"
+          "name": "constant.character.escape.unicode.name.jinja-family"
         }
       },
       "match": "(\\\\U[0-9A-Fa-f]{8})|(\\\\u[0-9A-Fa-f]{4})|(\\\\N\\{[a-zA-Z ]+\\})"
@@ -108,10 +108,10 @@
         {
           "captures": {
             "1": {
-              "name": "keyword.control.njk"
+              "name": "keyword.control.jinja-family"
             },
             "2": {
-              "name": "variable.other.njk.block"
+              "name": "variable.other.jinja-family.block"
             }
           },
           "match": "\\s*\\b(block)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b"
@@ -119,10 +119,10 @@
         {
           "captures": {
             "1": {
-              "name": "keyword.control.njk"
+              "name": "keyword.control.jinja-family"
             },
             "2": {
-              "name": "variable.other.njk.filter"
+              "name": "variable.other.jinja-family.filter"
             }
           },
           "match": "\\s*\\b(filter)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b"
@@ -130,10 +130,10 @@
         {
           "captures": {
             "1": {
-              "name": "keyword.control.njk"
+              "name": "keyword.control.jinja-family"
             },
             "2": {
-              "name": "variable.other.njk.test"
+              "name": "variable.other.jinja-family.test"
             }
           },
           "match": "\\s*\\b(is)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b"
@@ -141,38 +141,38 @@
         {
           "captures": {
             "1": {
-              "name": "keyword.control.njk"
+              "name": "keyword.control.jinja-family"
             }
           },
           "match": "(?<=\\{\\%-|\\{\\%)\\s*\\b([a-zA-Z_][a-zA-Z0-9_]*)\\b(?!\\s*[,=])"
         },
         {
           "match": "\\b(and|else|if|in|import|not|or|recursive|with(out)?\\s+context)\\b",
-          "name": "keyword.control.njk"
+          "name": "keyword.control.jinja-family"
         },
         {
           "match": "\\b(true|false|none)\\b",
-          "name": "constant.language.njk"
+          "name": "constant.language.jinja-family"
         },
         {
           "match": "\\b(loop|super|self|varargs|kwargs)\\b",
-          "name": "variable.language.njk"
+          "name": "variable.language.jinja-family"
         },
         {
           "match": "[a-zA-Z_][a-zA-Z0-9_]*",
-          "name": "variable.other.njk"
+          "name": "variable.other.jinja-family"
         },
         {
           "match": "(\\+|\\-|\\*\\*|\\*|//|/|%)",
-          "name": "keyword.operator.arithmetic.njk"
+          "name": "keyword.operator.arithmetic.jinja-family"
         },
         {
           "captures": {
             "1": {
-              "name": "punctuation.other.njk"
+              "name": "punctuation.other.jinja-family"
             },
             "2": {
-              "name": "variable.other.njk.filter"
+              "name": "variable.other.jinja-family.filter"
             }
           },
           "match": "(\\|)([a-zA-Z_][a-zA-Z0-9_]*)"
@@ -180,10 +180,10 @@
         {
           "captures": {
             "1": {
-              "name": "punctuation.other.njk"
+              "name": "punctuation.other.jinja-family"
             },
             "2": {
-              "name": "variable.other.njk.attribute"
+              "name": "variable.other.jinja-family.attribute"
             }
           },
           "match": "(\\.)([a-zA-Z_][a-zA-Z0-9_]*)"
@@ -192,7 +192,7 @@
           "begin": "\\[",
           "captures": [
             {
-              "name": "punctuation.other.njk"
+              "name": "punctuation.other.jinja-family"
             }
           ],
           "end": "\\]",
@@ -206,7 +206,7 @@
           "begin": "\\(",
           "captures": [
             {
-              "name": "punctuation.other.njk"
+              "name": "punctuation.other.jinja-family"
             }
           ],
           "end": "\\)",
@@ -220,7 +220,7 @@
           "begin": "\\{",
           "captures": [
             {
-              "name": "punctuation.other.njk"
+              "name": "punctuation.other.jinja-family"
             }
           ],
           "end": "\\}",
@@ -232,30 +232,30 @@
         },
         {
           "match": "(\\.|:|\\||,)",
-          "name": "punctuation.other.njk"
+          "name": "punctuation.other.jinja-family"
         },
         {
           "match": "(==|<=|=>|<|>|!=)",
-          "name": "keyword.operator.comparison.njk"
+          "name": "keyword.operator.comparison.jinja-family"
         },
         {
           "match": "=",
-          "name": "keyword.operator.assignment.njk"
+          "name": "keyword.operator.assignment.jinja-family"
         },
         {
           "begin": "\"",
           "beginCaptures": [
             {
-              "name": "punctuation.definition.string.begin.njk"
+              "name": "punctuation.definition.string.begin.jinja-family"
             }
           ],
           "end": "\"",
           "endCaptures": [
             {
-              "name": "punctuation.definition.string.end.njk"
+              "name": "punctuation.definition.string.end.jinja-family"
             }
           ],
-          "name": "string.quoted.double.njk",
+          "name": "string.quoted.double.jinja-family",
           "patterns": [
             {
               "include": "#string"
@@ -266,16 +266,16 @@
           "begin": "'",
           "beginCaptures": [
             {
-              "name": "punctuation.definition.string.begin.njk"
+              "name": "punctuation.definition.string.begin.jinja-family"
             }
           ],
           "end": "'",
           "endCaptures": [
             {
-              "name": "punctuation.definition.string.end.njk"
+              "name": "punctuation.definition.string.end.jinja-family"
             }
           ],
-          "name": "string.quoted.single.njk",
+          "name": "string.quoted.single.jinja-family",
           "patterns": [
             {
               "include": "#string"
@@ -286,16 +286,16 @@
           "begin": "@/",
           "beginCaptures": [
             {
-              "name": "punctuation.definition.regexp.begin.njk"
+              "name": "punctuation.definition.regexp.begin.jinja-family"
             }
           ],
           "end": "/",
           "endCaptures": [
             {
-              "name": "punctuation.definition.regexp.end.njk"
+              "name": "punctuation.definition.regexp.end.jinja-family"
             }
           ],
-          "name": "string.regexp.njk",
+          "name": "string.regexp.jinja-family",
           "patterns": [
             {
               "include": "#simple_escapes"
@@ -307,37 +307,37 @@
     "simple_escapes": {
       "captures": {
         "1": {
-          "name": "constant.character.escape.newline.njk"
+          "name": "constant.character.escape.newline.jinja-family"
         },
         "10": {
-          "name": "constant.character.escape.tab.njk"
+          "name": "constant.character.escape.tab.jinja-family"
         },
         "11": {
-          "name": "constant.character.escape.vertical-tab.njk"
+          "name": "constant.character.escape.vertical-tab.jinja-family"
         },
         "2": {
-          "name": "constant.character.escape.backlash.njk"
+          "name": "constant.character.escape.backlash.jinja-family"
         },
         "3": {
-          "name": "constant.character.escape.double-quote.njk"
+          "name": "constant.character.escape.double-quote.jinja-family"
         },
         "4": {
-          "name": "constant.character.escape.single-quote.njk"
+          "name": "constant.character.escape.single-quote.jinja-family"
         },
         "5": {
-          "name": "constant.character.escape.bell.njk"
+          "name": "constant.character.escape.bell.jinja-family"
         },
         "6": {
-          "name": "constant.character.escape.backspace.njk"
+          "name": "constant.character.escape.backspace.jinja-family"
         },
         "7": {
-          "name": "constant.character.escape.formfeed.njk"
+          "name": "constant.character.escape.formfeed.jinja-family"
         },
         "8": {
-          "name": "constant.character.escape.linefeed.njk"
+          "name": "constant.character.escape.linefeed.jinja-family"
         },
         "9": {
-          "name": "constant.character.escape.return.njk"
+          "name": "constant.character.escape.return.jinja-family"
         }
       },
       "match": "(\\\\\\n)|(\\\\\\\\)|(\\\\\\\")|(\\\\')|(\\\\a)|(\\\\b)|(\\\\f)|(\\\\n)|(\\\\r)|(\\\\t)|(\\\\v)"

@@ -6,12 +6,12 @@ const prettyDiffWrapper = (document, range, options) => {
   const source = document.getText(range);
   const workspaceConfig = vscode.workspace.getConfiguration("editor");
   const htmlConfig = vscode.workspace.getConfiguration("html");
-  const nunjucksTemplateConfig = vscode.workspace.getConfiguration("nunjucksTemplate")
+  const jinjaFamilyTemplateConfig = vscode.workspace.getConfiguration("jinjaFamilyTemplate")
   const activeEditorOptions = vscode.window.activeTextEditor.options;
   const indent_size = activeEditorOptions.tabSize || workspaceConfig.tabSize;
   const inchar = activeEditorOptions.insertSpaces ? " " : "\t";
   const wrap = htmlConfig.format.wrapLineLength;
-  const preserve = nunjucksTemplateConfig.preserveEmptyLine || 0
+  const preserve = jinjaFamilyTemplateConfig.preserveEmptyLine || 0
 
   prettydiff.options = {
     // ...prettydiff.options,
@@ -106,7 +106,7 @@ const prettyDiffWrapper = (document, range, options) => {
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
-    vscode.languages.registerDocumentFormattingEditProvider("njk", {
+    vscode.languages.registerDocumentFormattingEditProvider("jinja-family", {
       provideDocumentFormattingEdits(document, options, token) {
         const replacements = [];
 
@@ -174,7 +174,7 @@ export function activate(context: vscode.ExtensionContext) {
     "track",
     "wbr",
   ];
-  vscode.languages.setLanguageConfiguration("njk", {
+  vscode.languages.setLanguageConfiguration("jinja-family", {
     onEnterRules: [
       {
         beforeText: new RegExp(
