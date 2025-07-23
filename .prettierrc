@@ -1,0 +1,38 @@
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "semi": false,
+  "printWidth": 100,
+  "arrowParens": "always",
+  "parser": "typescript",
+  "plugins": ["prettier-plugin-organize-imports"],
+  "overrides": [
+    {
+      "files": "*.md",
+      "options": {
+        "parser": "markdown"
+      }
+    },
+    {
+      "files": [
+        ".vscode/launch.json",
+        ".vscode/settings.json",
+        "tsconfig.eslint.json",
+        "tsconfig.prod.json",
+        "tsconfig.json"
+      ],
+      "options": {
+        "parser": "json"
+      }
+    },
+    {
+      "files": [
+        "src/enum/CE_ICONS.ts",
+        "src/enum/CE_PLACEHOLDER_IMAGE.ts"
+      ],
+      "options": {
+        "printWidth": 999
+      }
+    }
+  ]
+}

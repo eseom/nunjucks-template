@@ -4,5 +4,12 @@ out/test/**
 out/**/*.map
 src/**
 .gitignore
+.eslintrc.json
+.vscode-test.json
 tsconfig.json
 vsc-extension-quickstart.md
+*.vsix
+node_modules
+.nyc_output
+coverage
+**/*.d.ts

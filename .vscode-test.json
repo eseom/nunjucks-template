@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "label": "Run Extension Tests",
+      "type": "extensionTests",
+      "request": "launch",
+      "launchArgs": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/index",
+        "--disable-extensions"
+      ]
+    }
+  ]
+}
