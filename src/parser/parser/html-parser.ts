@@ -177,15 +177,9 @@ export class HTMLParser {
     if (this.check(TokenType.EQUALS)) {
       this.advance() // =
 
-      if (this.check(TokenType.STRING)) {
-        const valueToken = this.advance()
-        value = valueToken.value
-        quoted = true
-      } else if (this.check(TokenType.ATTRIBUTE_VALUE)) {
-        const valueToken = this.advance()
-        value = valueToken.value
-        quoted = false
-      }
+      // Parse attribute value which might contain Jinja tags
+      value = this.parseAttributeValue()
+      quoted = true // Assume quoted if there's a value
     }
 
     return {
@@ -198,6 +192,76 @@ export class HTMLParser {
         end: this.previous().end,
       },
     }
+  }
+
+  private parseAttributeValue(): string {
+    const parts: string[] = []
+
+    // Parse all tokens that make up the attribute value
+    while (
+      !this.check(TokenType.TAG_CLOSE) &&
+      !this.check(TokenType.TAG_SELF_CLOSE) &&
+      !this.check(TokenType.ATTRIBUTE_NAME) &&
+      !this.isAtEnd()
+    ) {
+      const token = this.peek()
+
+      if (token.type === TokenType.STRING) {
+        parts.push(token.value)
+        this.advance()
+      } else if (token.type === TokenType.VARIABLE_START) {
+        parts.push('{{')
+        this.advance()
+        
+        // Parse the content inside the variable tag
+        while (!this.check(TokenType.VARIABLE_END) && !this.isAtEnd()) {
+          const innerToken = this.advance()
+          if (innerToken.type === TokenType.STRING) {
+            parts.push(`"${innerToken.value}"`)
+          } else {
+            parts.push(innerToken.value)
+          }
+          
+          // Add space between tokens for readability
+          if (!this.check(TokenType.VARIABLE_END) && 
+              !this.check(TokenType.LPAREN) && 
+              !this.check(TokenType.RPAREN) &&
+              !this.check(TokenType.DOT) &&
+              !this.check(TokenType.COMMA)) {
+            parts.push(' ')
+          }
+        }
+        
+        if (this.check(TokenType.VARIABLE_END)) {
+          parts.push('}}')
+          this.advance()
+        }
+      } else if (token.type === TokenType.TEMPLATE_TAG_START) {
+        parts.push('{%')
+        this.advance()
+        
+        // Parse the content inside the template tag
+        while (!this.check(TokenType.TEMPLATE_TAG_END) && !this.isAtEnd()) {
+          const innerToken = this.advance()
+          parts.push(innerToken.value)
+          
+          // Add space between tokens for readability
+          if (!this.check(TokenType.TEMPLATE_TAG_END)) {
+            parts.push(' ')
+          }
+        }
+        
+        if (this.check(TokenType.TEMPLATE_TAG_END)) {
+          parts.push('%}')
+          this.advance()
+        }
+      } else {
+        // For other token types, just break out
+        break
+      }
+    }
+
+    return parts.join('')
   }
 
   private parseText(): TextNode {

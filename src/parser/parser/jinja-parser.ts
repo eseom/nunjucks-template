@@ -180,6 +180,15 @@ export class JinjaParser extends HTMLParser {
 
     const nameToken = this.consume(TokenType.IDENTIFIER, 'Expected block name')
     this.skipWhitespace()
+    
+    // Handle optional 'scoped' modifier
+    let scoped = false
+    if (this.check(TokenType.IDENTIFIER) && this.peek().value === 'scoped') {
+      this.advance() // consume 'scoped'
+      scoped = true
+      this.skipWhitespace()
+    }
+    
     this.consume(TokenType.TEMPLATE_TAG_END, 'Expected "%}"')
 
     const body = this.parseTemplateBody(['endblock'])
@@ -189,6 +198,7 @@ export class JinjaParser extends HTMLParser {
       type: 'TemplateTag',
       templateType: 'BlockStatement',
       name: nameToken.value,
+      scoped,
       body,
       loc: {
         start: startToken.start,
@@ -435,6 +445,26 @@ export class JinjaParser extends HTMLParser {
 
   private parseLogicalNotExpression(): ExpressionNode {
     if (this.check(TokenType.NOT)) {
+      // Look ahead to see if this is "not in" (comparison) or just "not" (unary)
+      const nextPos = this.current + 1
+      if (nextPos < this.tokens.length) {
+        // Skip whitespace to find the next meaningful token
+        let checkPos = nextPos
+        while (
+          checkPos < this.tokens.length &&
+          (this.tokens[checkPos].type === TokenType.WHITESPACE ||
+            this.tokens[checkPos].type === TokenType.NEWLINE)
+        ) {
+          checkPos++
+        }
+
+        if (checkPos < this.tokens.length && this.tokens[checkPos].type === TokenType.IN) {
+          // This is "not in" - let parseComparisonExpression handle it
+          return this.parseComparisonExpression()
+        }
+      }
+
+      // This is regular unary "not"
       const operator = this.advance()
       this.skipWhitespace()
       const operand = this.parseLogicalNotExpression()
@@ -461,16 +491,34 @@ export class JinjaParser extends HTMLParser {
       this.check(TokenType.LT) ||
       this.check(TokenType.LE) ||
       this.check(TokenType.GT) ||
-      this.check(TokenType.GE)
+      this.check(TokenType.GE) ||
+      this.check(TokenType.IN) ||
+      this.check(TokenType.NOT)
     ) {
-      const operator = this.advance()
+      let operatorStr = ''
+
+      if (this.check(TokenType.NOT)) {
+        // Handle "not in" operator
+        this.advance() // consume 'not'
+        this.skipWhitespace()
+        if (this.check(TokenType.IN)) {
+          this.advance() // consume 'in'
+          operatorStr = 'not in'
+        } else {
+          throw new Error('Expected "in" after "not" in comparison')
+        }
+      } else {
+        const operator = this.advance()
+        operatorStr = operator.value
+      }
+
       this.skipWhitespace()
       const right = this.parseFilterExpression()
 
       expr = {
         type: 'Expression',
         expressionType: 'BinaryOperation',
-        operator: operator.value,
+        operator: operatorStr,
         left: expr,
         right: right,
       } as any
@@ -537,12 +585,7 @@ export class JinjaParser extends HTMLParser {
           property: property,
         } as any
       case TokenType.STRING:
-        this.advance()
-        return {
-          type: 'Expression',
-          expressionType: 'Literal',
-          value: token.value,
-        } as LiteralNode
+        return this.parseStringLiteralWithAccess()
       case TokenType.NUMBER:
         this.advance()
         return {
@@ -562,6 +605,8 @@ export class JinjaParser extends HTMLParser {
         const expr = this.parseExpression()
         this.consume(TokenType.RPAREN, 'Expected ")"')
         return expr
+      case TokenType.LBRACKET:
+        return this.parseArrayLiteral()
       default:
         throw new Error(`Unexpected token in expression: ${token.type}`)
     }
@@ -707,6 +752,171 @@ export class JinjaParser extends HTMLParser {
     }
 
     return expr
+  }
+
+  private parseStringLiteralWithAccess(): ExpressionNode {
+    const token = this.advance() // consume string
+    let expr: ExpressionNode = {
+      type: 'Expression',
+      expressionType: 'Literal',
+      value: token.value,
+    } as LiteralNode
+
+    // Handle method calls and attribute access on string literals
+    while (
+      this.check(TokenType.DOT) ||
+      this.check(TokenType.LPAREN) ||
+      this.check(TokenType.LBRACKET)
+    ) {
+      if (this.check(TokenType.DOT)) {
+        this.advance() // .
+        const property = this.parseIdentifier()
+        expr = {
+          type: 'Expression',
+          expressionType: 'AttributeAccess',
+          object: expr,
+          property: property,
+        } as any
+      } else if (this.check(TokenType.LBRACKET)) {
+        this.advance() // [
+        this.skipWhitespace()
+
+        // Check for slice notation
+        let start: ExpressionNode | null = null
+        let stop: ExpressionNode | null = null
+        let step: ExpressionNode | null = null
+
+        if (!this.check(TokenType.COLON)) {
+          start = this.parseExpression()
+          this.skipWhitespace()
+        }
+
+        if (this.check(TokenType.COLON)) {
+          this.advance() // :
+          this.skipWhitespace()
+
+          if (!this.check(TokenType.RBRACKET) && !this.check(TokenType.COLON)) {
+            stop = this.parseExpression()
+            this.skipWhitespace()
+          }
+
+          if (this.check(TokenType.COLON)) {
+            this.advance() // :
+            this.skipWhitespace()
+            if (!this.check(TokenType.RBRACKET)) {
+              step = this.parseExpression()
+              this.skipWhitespace()
+            }
+          }
+
+          this.consume(TokenType.RBRACKET, 'Expected "]"')
+          expr = {
+            type: 'Expression',
+            expressionType: 'SliceAccess',
+            object: expr,
+            start: start,
+            stop: stop,
+            step: step,
+          } as any
+        } else {
+          // Regular subscript access
+          const index = this.parseExpression()
+          this.skipWhitespace()
+          this.consume(TokenType.RBRACKET, 'Expected "]"')
+          expr = {
+            type: 'Expression',
+            expressionType: 'SubscriptAccess',
+            object: expr,
+            index: index,
+          } as any
+        }
+      } else if (this.check(TokenType.LPAREN)) {
+        // Function call
+        this.advance() // (
+        const args: ExpressionNode[] = []
+
+        while (!this.check(TokenType.RPAREN) && !this.isAtEnd()) {
+          this.skipWhitespace()
+
+          // Check for keyword arguments (identifier = expression)
+          if (this.check(TokenType.IDENTIFIER) && this.peekNext()?.type === TokenType.ASSIGN) {
+            const keyToken = this.advance() // identifier
+            this.advance() // =
+            const value = this.parseExpression()
+
+            // Handle keyword arguments as special expressions
+            args.push({
+              type: 'Expression',
+              expressionType: 'KeywordArgument',
+              key: keyToken.value,
+              value: value,
+            } as any)
+          } else {
+            // Regular positional arguments
+            args.push(this.parseExpression())
+          }
+
+          this.skipWhitespace()
+          if (this.check(TokenType.COMMA)) {
+            this.advance()
+          }
+        }
+
+        this.consume(TokenType.RPAREN, 'Expected ")"')
+
+        expr = {
+          type: 'Expression',
+          expressionType: 'FunctionCall',
+          function: expr,
+          arguments: args,
+        } as any
+      }
+    }
+
+    return expr
+  }
+
+  private parseArrayLiteral(): ExpressionNode {
+    this.advance() // consume '['
+    this.skipWhitespace()
+
+    const elements: ExpressionNode[] = []
+
+    // Handle empty array
+    if (this.check(TokenType.RBRACKET)) {
+      this.advance() // consume ']'
+      return {
+        type: 'Expression',
+        expressionType: 'ArrayLiteral',
+        elements: elements,
+      } as any
+    }
+
+    // Parse array elements
+    while (!this.check(TokenType.RBRACKET) && !this.isAtEnd()) {
+      this.skipWhitespace()
+      elements.push(this.parseExpression())
+      this.skipWhitespace()
+
+      if (this.check(TokenType.COMMA)) {
+        this.advance() // consume ','
+        this.skipWhitespace()
+        // Allow trailing comma
+        if (this.check(TokenType.RBRACKET)) {
+          break
+        }
+      } else if (!this.check(TokenType.RBRACKET)) {
+        throw new Error('Expected "," or "]" in array literal')
+      }
+    }
+
+    this.consume(TokenType.RBRACKET, 'Expected "]"')
+
+    return {
+      type: 'Expression',
+      expressionType: 'ArrayLiteral',
+      elements: elements,
+    } as any
   }
 
   private parseIdentifier(): IdentifierNode {

@@ -249,7 +249,7 @@ export class SimpleTokenizer {
           this.skipWhitespace()
 
           if (this.current() === '"' || this.current() === "'") {
-            this.scanString()
+            this.scanAttributeValue()
           } else {
             // Unquoted attribute value
             const valueStart = this.position
@@ -282,6 +282,51 @@ export class SimpleTokenizer {
     const value = this.input.substring(start, this.position)
     const type = this.getIdentifierType(value)
     this.addToken(type, value)
+  }
+
+  private scanAttributeValue(): void {
+    const quote = this.current()
+    this.advance() // Starting quote
+
+    // Scan content inside the attribute value, checking for Jinja tags
+    while (!this.isAtEnd() && this.current() !== quote) {
+      // Check for Jinja tags first
+      if (this.current() === '{') {
+        if (this.peek(1) === '%') {
+          this.scanTemplateTag()
+          continue
+        } else if (this.peek(1) === '{') {
+          this.scanVariableTag()
+          continue
+        } else if (this.peek(1) === '#') {
+          this.scanCommentTag()
+          continue
+        }
+      }
+
+      // Regular text content inside attribute value
+      const start = this.position
+      while (
+        !this.isAtEnd() &&
+        this.current() !== quote &&
+        this.current() !== '{'
+      ) {
+        if (this.current() === '\n') {
+          this.line++
+          this.column = 0
+        }
+        this.advance()
+      }
+
+      if (this.position > start) {
+        const value = this.input.substring(start, this.position)
+        this.addToken(TokenType.STRING, value)
+      }
+    }
+
+    if (this.current() === quote) {
+      this.advance() // closing quote
+    }
   }
 
   private scanString(): void {

@@ -12,6 +12,11 @@ export class JinjaFormatter extends BaseFormatter {
       return this.formatStyleElement(node, options, indentLevel)
     }
 
+    // Special handling for <script> tags to format JavaScript content
+    if (node.tagName === 'script') {
+      return this.formatScriptElement(node, options, indentLevel)
+    }
+
     return super.formatElement(node, options, indentLevel)
   }
 
@@ -142,6 +147,94 @@ export class JinjaFormatter extends BaseFormatter {
     }
   }
 
+  private formatScriptElement(node: any, options: FormattingOptions, indentLevel: number): string {
+    const indent = this.getIndent(options, indentLevel)
+    const attributes = this.formatAttributes(node.attributes, options)
+
+    if (!node.children || node.children.length === 0) {
+      return `${indent}<script${attributes}></script>`
+    }
+
+    // Extract JavaScript content, preserving Jinja tags
+    const scriptContent = this.extractMixedContent(node.children, options)
+
+    if (!scriptContent.trim()) {
+      return `${indent}<script${attributes}></script>`
+    }
+
+    try {
+      // Format JavaScript while preserving Jinja templates
+      const formattedJS = this.formatJavaScriptWithJinja(scriptContent, options, indentLevel + 1)
+      return `${indent}<script${attributes}>\n${formattedJS}\n${indent}</script>`
+    } catch (error) {
+      // Fallback to simple formatting if JS parsing fails
+      console.warn('JavaScript formatting failed, using fallback:', error)
+      const lines = scriptContent.split('\n')
+      const indentedJS = lines
+        .map((line: string) => {
+          const trimmedLine = line.trim()
+          if (trimmedLine === '') return ''
+          return this.getIndent(options, indentLevel + 1) + trimmedLine
+        })
+        .filter((line) => line.length > 0)
+        .join('\n')
+
+      return `${indent}<script${attributes}>\n${indentedJS}\n${indent}</script>`
+    }
+  }
+
+  private extractMixedContent(children: any[], options: FormattingOptions): string {
+    return children
+      .map((child: any) => {
+        if (child.type === 'Text') {
+          return child.value
+        } else if (child.type === 'VariableTag') {
+          // Preserve Jinja variable tags
+          const expr = this.formatExpression(child.expression)
+          return `{{ ${expr} }}`
+        } else if (child.type === 'TemplateTag') {
+          // Preserve Jinja template tags
+          return this.formatTemplateTag(child, options, 0)
+        }
+        return ''
+      })
+      .join('')
+  }
+
+  private formatJavaScriptWithJinja(content: string, options: FormattingOptions, indentLevel: number): string {
+    // Simple JavaScript formatting that preserves Jinja tags
+    const lines = content.split('\n')
+    let formattedLines: string[] = []
+    
+    for (let line of lines) {
+      const trimmedLine = line.trim()
+      if (trimmedLine === '') {
+        continue
+      }
+
+      // Basic JavaScript formatting
+      let formattedLine = trimmedLine
+
+      // Handle lines with Jinja tags - be more careful with spacing
+      if (formattedLine.includes('{{') && formattedLine.includes('}}')) {
+        // For lines with Jinja variable tags, add spaces around = if not already present
+        formattedLine = formattedLine.replace(/(\w+)=(\{\{[^}]+\}\})/g, '$1 = $2')
+        formattedLine = formattedLine.replace(/(\{\{[^}]+\}\})=(\w+)/g, '$1 = $2')
+      } else if (!formattedLine.includes('{{') && !formattedLine.includes('{%')) {
+        // For pure JavaScript lines, add spaces around operators
+        formattedLine = formattedLine
+          .replace(/([^=!<>])=([^=])/g, '$1 = $2') // = but not == != <= >=
+          .replace(/\s+=\s+/g, ' = ') // Clean up multiple spaces
+      }
+
+      // Apply indentation
+      const indentedLine = this.getIndent(options, indentLevel) + formattedLine
+      formattedLines.push(indentedLine)
+    }
+
+    return formattedLines.join('\n')
+  }
+
   protected formatNode(node: any, options: FormattingOptions, indentLevel: number): string {
     // First handle basic HTML nodes
     const baseResult = super.formatNode(node, options, indentLevel)
@@ -265,7 +358,8 @@ export class JinjaFormatter extends BaseFormatter {
   private formatBlockStatement(node: any, options: FormattingOptions, indentLevel: number): string {
     const indent = this.getIndent(options, indentLevel)
 
-    let result = `${indent}{% block ${node.name} %}`
+    const scopedStr = node.scoped ? ' scoped' : ''
+    let result = `${indent}{% block ${node.name}${scopedStr} %}`
 
     if (node.body && node.body.length > 0) {
       const bodyFormatted = node.body
@@ -402,6 +496,11 @@ export class JinjaFormatter extends BaseFormatter {
       case 'UnaryOperation':
         const operand = this.formatExpression(expr.operand)
         return `${expr.operator} ${operand}`
+      case 'ArrayLiteral':
+        const elements = expr.elements
+          ? expr.elements.map((element: any) => this.formatExpression(element)).join(', ')
+          : ''
+        return `[${elements}]`
       default:
         return String(expr.value || expr.name || '')
     }

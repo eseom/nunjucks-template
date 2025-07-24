@@ -1,0 +1,1 @@
+<a href="{{ url_for("partner-show.index", key=row.uniq_key) }}">🔗</a>

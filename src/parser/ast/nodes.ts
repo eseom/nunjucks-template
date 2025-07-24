@@ -80,6 +80,12 @@ export interface LiteralNode extends ExpressionNode {
   value: string | number | boolean | null
 }
 
+export interface ArrayLiteralNode extends ExpressionNode {
+  type: 'Expression'
+  expressionType: 'ArrayLiteral'
+  elements: ExpressionNode[]
+}
+
 export interface FilterNode extends ExpressionNode {
   type: 'Expression'
   expressionType: 'Filter'
@@ -140,6 +146,7 @@ export interface BlockStatementNode extends TemplateNode {
   type: 'TemplateTag'
   templateType: 'BlockStatement'
   name: string
+  scoped?: boolean
   body: Array<ElementNode | TextNode | CommentNode | TemplateNode>
 }
 
