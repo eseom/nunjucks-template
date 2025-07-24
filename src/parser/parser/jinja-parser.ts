@@ -21,9 +21,9 @@ export class JinjaParser extends HTMLParser {
     if (typeof input === 'string') {
       super(input)
     } else {
-      // 토큰 배열이 전달된 경우
-      super('') // 더미 문자열로 상위 클래스 호출
-      this.tokens = input // 토큰을 직접 설정
+      // When token array is passed
+      super('') // Call parent class with dummy string
+      this.tokens = input // Set tokens directly
       this.current = 0
     }
   }
@@ -46,7 +46,7 @@ export class JinjaParser extends HTMLParser {
   private parseTemplateTag(): TemplateNode {
     const startToken = this.consume(TokenType.TEMPLATE_TAG_START, 'Expected "{%"')
 
-    // 공백 건너뛰기
+    // Skip whitespace
     this.skipWhitespace()
 
     const tagToken = this.peek()
@@ -65,11 +65,11 @@ export class JinjaParser extends HTMLParser {
       case TokenType.SET:
         return this.parseSetStatement(startToken)
       case TokenType.IDENTIFIER:
-        // raw, endraw 등의 특수 태그들
+        // Special tags like raw, endraw, etc.
         if (tagToken.value === 'raw') {
           return this.parseRawStatement(startToken)
         }
-        // 일반 식별자는 기본 템플릿 태그로 처리
+        // Regular identifiers are handled as basic template tags
         return this.parseGenericTemplateTag(startToken)
       default:
         return this.parseGenericTemplateTag(startToken)
@@ -87,13 +87,13 @@ export class JinjaParser extends HTMLParser {
     const consequent = this.parseTemplateBody(['elif', 'else', 'endif'])
     let alternate: any[] | undefined
 
-    // elif/else 처리
+    // Handle elif/else
     if (this.checkTemplateTag('elif')) {
       this.consume(TokenType.TEMPLATE_TAG_START, 'Expected "{%"')
       this.skipWhitespace()
       this.consume(TokenType.ELIF, 'Expected "elif"')
       this.skipWhitespace()
-      // elif 조건 파싱 (나중에 구현)
+      // Parse elif condition (to be implemented later)
       const elifTest = this.parseExpression()
       this.skipWhitespace()
       this.consume(TokenType.TEMPLATE_TAG_END, 'Expected "%}"')
@@ -107,7 +107,7 @@ export class JinjaParser extends HTMLParser {
       alternate = this.parseTemplateBody(['endif'])
     }
 
-    // endif 소비
+    // Consume endif
     this.consumeEndTag('endif')
 
     return {
@@ -222,17 +222,17 @@ export class JinjaParser extends HTMLParser {
         const param = this.parseIdentifier()
         parameters.push(param)
 
-        // 기본값 처리 (예: name='default')
+        // Handle default value (e.g., name='default')
         if (this.check(TokenType.ASSIGN)) {
           this.advance() // =
           this.skipWhitespace()
-          // 기본값 파싱 (간단화 - 문자열, 숫자, 식별자만)
+          // Parse default value (simplified - only strings, numbers, identifiers)
           if (
             this.check(TokenType.STRING) ||
             this.check(TokenType.NUMBER) ||
             this.check(TokenType.IDENTIFIER)
           ) {
-            this.advance() // 기본값 소비
+            this.advance() // Consume default value
           }
         }
       }
@@ -293,7 +293,7 @@ export class JinjaParser extends HTMLParser {
     this.skipWhitespace()
     this.consume(TokenType.TEMPLATE_TAG_END, 'Expected "%}"')
 
-    // {% endraw %}까지의 모든 내용을 텍스트로 처리
+    // Handle all content until {% endraw %} as text
     const contentStart = this.current
     while (!this.isAtEnd() && !this.checkTemplateTag('endraw')) {
       this.advance()
@@ -318,7 +318,7 @@ export class JinjaParser extends HTMLParser {
   }
 
   private parseGenericTemplateTag(startToken: Token): any {
-    // 일반적인 템플릿 태그 (from, import 등)
+    // General template tags (from, import, etc.)
     const tokens = []
     while (!this.check(TokenType.TEMPLATE_TAG_END) && !this.isAtEnd()) {
       tokens.push(this.advance().value)
@@ -393,7 +393,7 @@ export class JinjaParser extends HTMLParser {
       const filterName = this.consume(TokenType.IDENTIFIER, 'Expected filter name').value
       const args: ExpressionNode[] = []
 
-      // 필터 인자 처리 (간단화)
+      // Handle filter arguments (simplified)
       if (this.check(TokenType.LPAREN)) {
         this.advance() // (
         while (!this.check(TokenType.RPAREN) && !this.isAtEnd()) {
@@ -470,20 +470,20 @@ export class JinjaParser extends HTMLParser {
           property: property,
         } as any
       } else if (this.check(TokenType.LPAREN)) {
-        // 함수 호출
+        // Function call
         this.advance() // (
         const args: ExpressionNode[] = []
 
         while (!this.check(TokenType.RPAREN) && !this.isAtEnd()) {
           this.skipWhitespace()
 
-          // 키워드 인수 확인 (identifier = expression)
+          // Check for keyword arguments (identifier = expression)
           if (this.check(TokenType.IDENTIFIER) && this.peekNext()?.type === TokenType.ASSIGN) {
             const keyToken = this.advance() // identifier
             this.advance() // =
             const value = this.parseExpression()
 
-            // 키워드 인수를 특별한 표현식으로 처리
+            // Handle keyword arguments as special expressions
             args.push({
               type: 'Expression',
               expressionType: 'KeywordArgument',
@@ -491,7 +491,7 @@ export class JinjaParser extends HTMLParser {
               value: value,
             } as any)
           } else {
-            // 일반 위치 인수
+            // Regular positional arguments
             args.push(this.parseExpression())
           }
 
@@ -548,11 +548,11 @@ export class JinjaParser extends HTMLParser {
       return false
     }
 
-    // 현재 위치에서 다음 토큰들을 확인
+    // Check next tokens from current position
     if (this.current + 1 < this.tokens.length) {
       const nextToken = this.tokens[this.current + 1]
 
-      // 토큰 타입으로 먼저 확인
+      // First check by token type
       switch (tagName) {
         case 'if':
           return nextToken.type === TokenType.IF
@@ -581,7 +581,7 @@ export class JinjaParser extends HTMLParser {
         case 'set':
           return nextToken.type === TokenType.SET
         default:
-          // 일반 식별자로 확인
+          // Check as general identifier
           return nextToken.type === TokenType.IDENTIFIER && nextToken.value === tagName
       }
     }
@@ -608,7 +608,7 @@ export class JinjaParser extends HTMLParser {
     this.consume(TokenType.TEMPLATE_TAG_START, `Expected "{%"`)
     this.skipWhitespace()
 
-    // 토큰 타입으로 직접 확인
+    // Check directly by token type
     let expectedTokenType: TokenType
     switch (tagName) {
       case 'endif':
@@ -625,7 +625,7 @@ export class JinjaParser extends HTMLParser {
         break
       case 'endraw':
         expectedTokenType = TokenType.IDENTIFIER
-        break // endraw는 별도 토큰이 없음
+        break // endraw has no separate token
       default:
         expectedTokenType = TokenType.IDENTIFIER
         break

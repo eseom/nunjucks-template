@@ -24,7 +24,7 @@ export class SimpleTokenizer {
   private scanToken(): void {
     const c = this.current()
 
-    // 템플릿 구문 확인 우선
+    // Check template syntax first
     if (c === '{') {
       if (this.peek(1) === '%') {
         this.scanTemplateTag()
@@ -38,7 +38,7 @@ export class SimpleTokenizer {
       }
     }
 
-    // HTML 태그 확인
+    // Check HTML tags
     if (c === '<') {
       if (this.peek(1) === '!' && this.peek(2) === '-' && this.peek(3) === '-') {
         this.scanHtmlComment()
@@ -59,7 +59,7 @@ export class SimpleTokenizer {
       }
     }
 
-    // 기타 문자들
+    // Other characters
     switch (c) {
       case '>':
         this.addToken(TokenType.TAG_CLOSE, '>')
@@ -96,7 +96,7 @@ export class SimpleTokenizer {
 
     this.skipWhitespace()
 
-    // 태그 내용 스캔
+    // Scan tag content
     while (!this.isAtEnd() && !(this.current() === '%' && this.peek(1) === '}')) {
       if (this.isWhitespace(this.current())) {
         this.skipWhitespace()
@@ -123,7 +123,7 @@ export class SimpleTokenizer {
 
     this.skipWhitespace()
 
-    // 변수 내용 스캔
+    // Scan variable content
     while (!this.isAtEnd() && !(this.current() === '}' && this.peek(1) === '}')) {
       if (this.isWhitespace(this.current())) {
         this.skipWhitespace()
@@ -229,7 +229,7 @@ export class SimpleTokenizer {
       if (this.current() === '>' || this.current() === '/') break
 
       if (this.isAlpha(this.current())) {
-        // 속성 이름
+        // Attribute name
         const start = this.position
         while (
           this.isAlphaNumeric(this.current()) ||
@@ -251,7 +251,7 @@ export class SimpleTokenizer {
           if (this.current() === '"' || this.current() === "'") {
             this.scanString()
           } else {
-            // 따옴표 없는 속성값
+            // Unquoted attribute value
             const valueStart = this.position
             while (
               !this.isAtEnd() &&
@@ -286,7 +286,7 @@ export class SimpleTokenizer {
 
   private scanString(): void {
     const quote = this.current()
-    this.advance() // 시작 따옴표
+    this.advance() // Starting quote
 
     const start = this.position
     while (!this.isAtEnd() && this.current() !== quote) {

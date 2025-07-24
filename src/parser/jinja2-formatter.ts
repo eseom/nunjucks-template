@@ -1,3 +1,4 @@
+import * as vscode from 'vscode'
 import { FormattingOptions, JinjaFormatter } from './formatter/jinja-formatter'
 import { JinjaParser } from './parser/jinja-parser'
 
@@ -19,6 +20,7 @@ export class Jinja2Formatter {
     }
 
     const formattingOptions = { ...defaultOptions, ...options }
+    console.log(formattingOptions)
 
     try {
       this.parser = new JinjaParser(input)

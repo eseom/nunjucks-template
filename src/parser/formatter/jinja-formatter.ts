@@ -4,13 +4,13 @@ export { FormattingOptions }
 
 export class JinjaFormatter extends BaseFormatter {
   protected formatNode(node: any, options: FormattingOptions, indentLevel: number): string {
-    // 먼저 기본 HTML 노드들 처리
+    // First handle basic HTML nodes
     const baseResult = super.formatNode(node, options, indentLevel)
     if (baseResult) {
       return baseResult
     }
 
-    // Jinja 템플릿 노드들 처리
+    // Handle Jinja template nodes
     switch (node.type) {
       case 'TemplateTag':
         return this.formatTemplateTag(node, options, indentLevel)
@@ -166,16 +166,16 @@ export class JinjaFormatter extends BaseFormatter {
   private formatRawStatement(node: any, options: FormattingOptions, indentLevel: number): string {
     const indent = this.getIndent(options, indentLevel)
 
-    // Raw 블록의 내용을 그대로 유지 (원래 줄바꿈 및 공백 보존)
+    // Keep raw block content as is (preserve original line breaks and spaces)
     let content = node.content
     if (typeof content !== 'string') {
       content = ''
     }
 
-    // 시작과 끝의 불필요한 줄바꿈 제거 (있다면)
+    // Remove unnecessary line breaks at start and end (if any)
     content = content.trim()
 
-    // 내용이 있으면 앞뒤로 줄바꿈 추가, 없으면 한 줄로
+    // Add line breaks before and after if content exists, otherwise keep on one line
     if (content) {
       return `${indent}{% raw %}\n${content}\n${indent}{% endraw %}`
     } else {
@@ -220,7 +220,7 @@ export class JinjaFormatter extends BaseFormatter {
         const funcArgs = expr.arguments
           ? expr.arguments
               .map((arg: any) => {
-                // 키워드 인수 처리
+                // Handle keyword arguments
                 if (arg.expressionType === 'KeywordArgument') {
                   const value = this.formatExpression(arg.value)
                   return `${arg.key}=${value}`

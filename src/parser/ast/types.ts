@@ -1,4 +1,4 @@
-// AST 노드의 기본 타입 정의
+// Base type definitions for AST nodes
 
 export interface Position {
   line: number
@@ -17,10 +17,10 @@ export interface BaseNode {
   raw?: string
 }
 
-// HTML 관련 노드 타입
+// HTML related node types
 export type HTMLNodeType = 'Document' | 'Element' | 'Text' | 'Comment' | 'Attribute' | 'Doctype'
 
-// Jinja/Nunjucks 관련 노드 타입
+// Jinja/Nunjucks related node types
 export type TemplateNodeType =
   | 'TemplateTag' // {% ... %}
   | 'VariableTag' // {{ ... }}

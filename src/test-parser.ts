@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { Jinja2Formatter } from './parser/jinja2-formatter'
 
-// 복잡한 Jinja 템플릿을 파일에서 읽어오기
+// Load complex Jinja template from file
 function loadTestTemplate(): string {
   const templatePath = path.join(__dirname, '..', 'src', 'complex-jinja-template.html')
   return fs.readFileSync(templatePath, 'utf8')
@@ -23,7 +23,7 @@ async function testParser() {
     console.log('⚙️  Parsing and formatting...\n')
 
     const result = formatter.format(testTemplate, {
-      indentSize: 2,
+      indentSize: 4,
       indentChar: ' ',
       maxLineLength: 100,
       insertFinalNewline: true,
@@ -36,13 +36,13 @@ async function testParser() {
 
     console.log('\n✨ Parsing completed successfully!')
 
-    // 🔄 이중 포매팅 테스트 - 결과물을 다시 포매터에 돌리기
+    // 🔄 Double formatting test - Run formatter on the result again
     console.log('\n🔄 Testing formatter idempotency (double formatting)...')
     console.log('='.repeat(60))
 
     try {
       const secondResult = formatter.format(result, {
-        indentSize: 2,
+        indentSize: 4,
         indentChar: ' ',
         maxLineLength: 100,
         insertFinalNewline: true,
@@ -53,7 +53,7 @@ async function testParser() {
       console.log(secondResult)
       console.log('='.repeat(50))
 
-      // 결과 비교
+      // Compare results
       if (result === secondResult) {
         console.log(
           '\n🎉 SUCCESS: Formatter is idempotent! First and second results are identical.',
@@ -62,7 +62,7 @@ async function testParser() {
         console.log('\n⚠️  WARNING: Formatter results differ between first and second run.')
         console.log('This indicates the formatter is not fully stable.')
 
-        // 차이점 분석
+        // Analyze differences
         const lines1 = result.split('\n')
         const lines2 = secondResult.split('\n')
         const maxLines = Math.max(lines1.length, lines2.length)
@@ -94,7 +94,7 @@ async function testParser() {
   }
 }
 
-// 간단한 HTML 테스트도 추가
+// Add simple HTML test as well
 async function testSimpleHTML() {
   const formatter = new Jinja2Formatter()
 
@@ -125,7 +125,7 @@ async function testSimpleHTML() {
   }
 }
 
-// 실행
+// Execute
 testParser()
   .then(() => {
     return testSimpleHTML()

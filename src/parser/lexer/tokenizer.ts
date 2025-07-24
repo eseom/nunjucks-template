@@ -120,7 +120,7 @@ export class Tokenizer {
   }
 
   private scanTagName(): void {
-    // 공백 건너뛰기
+    // Skip whitespace
     while (this.isWhitespace(this.peek()) && !this.isAtEnd()) {
       this.advance()
     }
@@ -133,14 +133,14 @@ export class Tokenizer {
       const value = this.input.substring(start, this.position)
       this.addToken(TokenType.TAG_NAME, value)
 
-      // 속성들 스캔
+      // Scan attributes
       this.scanAttributes()
     }
   }
 
   private scanAttributes(): void {
     while (!this.isAtEnd() && this.peek() !== '>' && this.peek() !== '/') {
-      // 공백 건너뛰기
+      // Skip whitespace
       while (this.isWhitespace(this.peek()) && !this.isAtEnd()) {
         this.advance()
       }
@@ -149,7 +149,7 @@ export class Tokenizer {
         break
       }
 
-      // 속성 이름 스캔
+      // Scan attribute name
       if (this.isAlpha(this.peek())) {
         const start = this.position
         while (this.isAlphaNumeric(this.peek()) || this.peek() === '-' || this.peek() === ':') {
@@ -158,26 +158,26 @@ export class Tokenizer {
         const attrName = this.input.substring(start, this.position)
         this.addToken(TokenType.ATTRIBUTE_NAME, attrName)
 
-        // 공백 건너뛰기
+        // Skip whitespace
         while (this.isWhitespace(this.peek()) && !this.isAtEnd()) {
           this.advance()
         }
 
-        // = 기호 확인
+        // Check = sign
         if (this.peek() === '=') {
           this.advance()
           this.addToken(TokenType.EQUALS, '=')
 
-          // 공백 건너뛰기
+          // Skip whitespace
           while (this.isWhitespace(this.peek()) && !this.isAtEnd()) {
             this.advance()
           }
 
-          // 속성 값 스캔
+          // Scan attribute value
           if (this.peek() === '"' || this.peek() === "'") {
             this.scanString(this.peek())
           } else {
-            // 따옴표 없는 속성 값
+            // Unquoted attribute value
             const valueStart = this.position
             while (
               !this.isAtEnd() &&
@@ -194,7 +194,7 @@ export class Tokenizer {
           }
         }
       } else {
-        this.advance() // 예상치 못한 문자 건너뛰기
+        this.advance() // Skip unexpected character
       }
     }
   }

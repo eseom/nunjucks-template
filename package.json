@@ -174,7 +174,6 @@
     "mocha": "^10.2.0",
     "prettier": "^3.6.2",
     "prettier-plugin-organize-imports": "^4.2.0",
-    "prettydiff": "^101.2.6",
     "typescript": "^5.2.2"
   }
 }

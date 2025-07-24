@@ -1,6 +1,6 @@
 import type { BaseNode, TemplateNodeType } from './types'
 
-// HTML AST 노드들
+// HTML AST nodes
 export interface DocumentNode extends BaseNode {
   type: 'Document'
   children: Array<ElementNode | TextNode | CommentNode | TemplateNode>
@@ -12,7 +12,7 @@ export interface ElementNode extends BaseNode {
   attributes: AttributeNode[]
   children: Array<ElementNode | TextNode | CommentNode | TemplateNode>
   selfClosing: boolean
-  void: boolean // <br>, <img> 등
+  void: boolean // <br>, <img> etc
 }
 
 export interface AttributeNode extends BaseNode {
@@ -37,7 +37,7 @@ export interface DoctypeNode extends BaseNode {
   value: string
 }
 
-// Jinja/Nunjucks 템플릿 노드들
+// Jinja/Nunjucks template nodes
 export interface TemplateNode extends BaseNode {
   templateType: TemplateNodeType
 }
@@ -63,7 +63,7 @@ export interface CommentTagNode extends TemplateNode {
   value: string
 }
 
-// 표현식 노드들
+// Expression nodes
 export interface ExpressionNode extends BaseNode {
   expressionType: string
 }
@@ -95,7 +95,7 @@ export interface AssignmentNode extends ExpressionNode {
   value: ExpressionNode
 }
 
-// 특정 템플릿 태그들
+// Specific template tags
 export interface IfStatementNode extends TemplateNode {
   type: 'TemplateTag'
   templateType: 'IfStatement'
@@ -141,7 +141,7 @@ export interface MacroStatementNode extends TemplateNode {
   body: Array<ElementNode | TextNode | CommentNode | TemplateNode>
 }
 
-// 유니온 타입들
+// Union types
 export type ASTNode =
   | DocumentNode
   | ElementNode

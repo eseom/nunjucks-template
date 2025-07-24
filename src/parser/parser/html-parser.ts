@@ -19,7 +19,7 @@ export class HTMLParser {
   constructor(input: string) {
     const tokenizer = new SimpleTokenizer(input)
     this.tokens = tokenizer.tokenize().filter(
-      (token) => token.type !== TokenType.WHITESPACE, // 공백 토큰 제거 (필요시 유지 가능)
+      (token) => token.type !== TokenType.WHITESPACE, // Remove whitespace tokens (can be kept if needed)
     )
   }
 
@@ -69,7 +69,7 @@ export class HTMLParser {
       case TokenType.EOF:
         return null
       default:
-        this.advance() // 알 수 없는 토큰 건너뛰기
+        this.advance() // Skip unknown token
         return null
     }
   }
@@ -93,7 +93,7 @@ export class HTMLParser {
 
     const children: Array<ElementNode | TextNode | CommentNode | TemplateNode> = []
 
-    // self-closing이나 void 엘리먼트가 아닌 경우 children 파싱
+    // Parse children if not self-closing or void element
     if (!selfClosing && !isVoid) {
       while (!this.isAtEnd() && !this.isClosingTag(tagName)) {
         const child = this.parseNode()
@@ -108,7 +108,7 @@ export class HTMLParser {
         }
       }
 
-      // 닫는 태그 처리
+      // Handle closing tag
       if (this.isClosingTag(tagName)) {
         this.consume(TokenType.TAG_END_OPEN, 'Expected "</"')
         this.consume(TokenType.TAG_NAME, 'Expected tag name')
@@ -144,7 +144,7 @@ export class HTMLParser {
           attributes.push(attr)
         }
       } else {
-        this.advance() // 예상치 못한 토큰 건너뛰기
+        this.advance() // Skip unexpected token
       }
     }
 
@@ -208,7 +208,7 @@ export class HTMLParser {
   private parseComment(): CommentNode {
     const token = this.consume(TokenType.COMMENT, 'Expected comment')
 
-    // <!-- content --> 형식에서 content 부분만 추출
+    // Extract only the content part from <!-- content --> format
     const match = token.value.match(/^<!--\s*(.*?)\s*-->$/s)
     const value = match ? match[1] : token.value
 
@@ -268,7 +268,7 @@ export class HTMLParser {
 
   protected peekNext(): Token {
     if (this.current + 1 >= this.tokens.length) {
-      return this.tokens[this.tokens.length - 1] // EOF 토큰
+      return this.tokens[this.tokens.length - 1] // EOF token
     }
     return this.tokens[this.current + 1]
   }
