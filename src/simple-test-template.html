@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block head_css %}
+  <style>
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+    .content {
+      background-color: white;
+      padding: 20px;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+    }
+    .item {
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #e9ecef;
+      border-radius: 3px;
+    }
+    .item.today {
+      background-color: #fff3cd;
+      border-color: #ffeaa7;
+    }
+    .item.other {
+      background-color: #f8f9fa;
+      border-color: #dee2e6;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <div class="header">
+      <h1>{{ title }}</h1>
+      <p>총 {{ items|length }}개의 항목이 있습니다.</p>
+    </div>
+    
+    <div class="content">
+      {% if items %}
+        <h2>항목 목록</h2>
+        {% for item in items %}
+          <div class="item {% if item.date == today %}today{% else %}other{% endif %}">
+            <h3>{{ item.name }}</h3>
+            <p>날짜: {{ item.date }}</p>
+            {% if item.description %}
+              <p>{{ item.description }}</p>
+            {% endif %}
+            {% if item.status == 'active' %}
+              <span class="badge badge-success">활성</span>
+            {% elif item.status == 'pending' %}
+              <span class="badge badge-warning">대기</span>
+            {% else %}
+              <span class="badge badge-secondary">비활성</span>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>표시할 항목이 없습니다.</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block tail_js %}
+  <script>
+    console.log('페이지가 로드되었습니다.');
+    {% if debug %}
+      console.log('디버그 모드가 활성화되었습니다.');
+    {% endif %}
+  </script>
+{% endblock %} 

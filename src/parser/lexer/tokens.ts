@@ -9,21 +9,21 @@ export interface Token {
 }
 
 export enum TokenType {
-  // HTML 관련 토큰
+  // HTML related tokens
   TEXT = 'TEXT',
   TAG_OPEN = 'TAG_OPEN', // <
   TAG_CLOSE = 'TAG_CLOSE', // >
-  TAG_NAME = 'TAG_NAME', // div, span 등
+  TAG_NAME = 'TAG_NAME', // div, span, etc.
   TAG_SELF_CLOSE = 'TAG_SELF_CLOSE', // />
   TAG_END_OPEN = 'TAG_END_OPEN', // </
   ATTRIBUTE_NAME = 'ATTRIBUTE_NAME',
   ATTRIBUTE_VALUE = 'ATTRIBUTE_VALUE',
   EQUALS = 'EQUALS', // =
-  QUOTE = 'QUOTE', // " 또는 '
+  QUOTE = 'QUOTE', // " or '
   COMMENT = 'COMMENT', // <!-- -->
   DOCTYPE = 'DOCTYPE', // <!DOCTYPE html>
 
-  // Jinja/Nunjucks 관련 토큰
+  // Jinja/Nunjucks related tokens
   TEMPLATE_TAG_START = 'TEMPLATE_TAG_START', // {%
   TEMPLATE_TAG_END = 'TEMPLATE_TAG_END', // %}
   VARIABLE_START = 'VARIABLE_START', // {{
@@ -31,7 +31,7 @@ export enum TokenType {
   COMMENT_START = 'COMMENT_START', // {#
   COMMENT_END = 'COMMENT_END', // #}
 
-  // 템플릿 키워드
+  // Template keywords
   IF = 'IF',
   ELIF = 'ELIF',
   ELSE = 'ELSE',
@@ -47,7 +47,7 @@ export enum TokenType {
   ENDMACRO = 'ENDMACRO',
   SET = 'SET',
 
-  // 연산자
+  // Operators
   PIPE = 'PIPE', // |
   DOT = 'DOT', // .
   LPAREN = 'LPAREN', // (
@@ -56,8 +56,9 @@ export enum TokenType {
   RBRACKET = 'RBRACKET', // ]
   COMMA = 'COMMA', // ,
   ASSIGN = 'ASSIGN', // =
-  
-  // 비교 연산자
+  COLON = 'COLON', // :
+
+  // Comparison operators
   EQ = 'EQ', // ==
   STRICT_EQ = 'STRICT_EQ', // ===
   NE = 'NE', // !=
@@ -67,18 +68,18 @@ export enum TokenType {
   GT = 'GT', // >
   GE = 'GE', // >=
 
-  // 논리 연산자
+  // Logical operators
   AND = 'AND', // and
   OR = 'OR', // or
   NOT = 'NOT', // not
 
-  // 리터럴
+  // Literals
   IDENTIFIER = 'IDENTIFIER',
   STRING = 'STRING',
   NUMBER = 'NUMBER',
   BOOLEAN = 'BOOLEAN',
 
-  // 공백 및 제어
+  // Whitespace and control
   WHITESPACE = 'WHITESPACE',
   NEWLINE = 'NEWLINE',
   EOF = 'EOF',

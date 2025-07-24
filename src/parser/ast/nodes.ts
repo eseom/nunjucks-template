@@ -102,6 +102,15 @@ export interface SubscriptAccessNode extends ExpressionNode {
   index: ExpressionNode
 }
 
+export interface SliceAccessNode extends ExpressionNode {
+  type: 'Expression'
+  expressionType: 'SliceAccess'
+  object: ExpressionNode
+  start?: ExpressionNode | null
+  stop?: ExpressionNode | null
+  step?: ExpressionNode | null
+}
+
 export interface UnaryOperationNode extends ExpressionNode {
   type: 'Expression'
   expressionType: 'UnaryOperation'

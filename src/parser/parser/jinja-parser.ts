@@ -130,7 +130,7 @@ export class JinjaParser extends HTMLParser {
     // Parse target(s) - can be single identifier or multiple identifiers separated by commas
     const targets: any[] = []
     targets.push(this.parseIdentifier())
-    
+
     this.skipWhitespace()
     while (this.check(TokenType.COMMA)) {
       this.advance() // consume comma
@@ -447,11 +447,40 @@ export class JinjaParser extends HTMLParser {
       } as any
     }
 
-    return this.parseFilterExpression()
+    return this.parseComparisonExpression()
+  }
+
+  private parseComparisonExpression(): ExpressionNode {
+    let expr = this.parseFilterExpression()
+
+    while (
+      this.check(TokenType.EQ) ||
+      this.check(TokenType.STRICT_EQ) ||
+      this.check(TokenType.NE) ||
+      this.check(TokenType.STRICT_NE) ||
+      this.check(TokenType.LT) ||
+      this.check(TokenType.LE) ||
+      this.check(TokenType.GT) ||
+      this.check(TokenType.GE)
+    ) {
+      const operator = this.advance()
+      this.skipWhitespace()
+      const right = this.parseFilterExpression()
+
+      expr = {
+        type: 'Expression',
+        expressionType: 'BinaryOperation',
+        operator: operator.value,
+        left: expr,
+        right: right,
+      } as any
+    }
+
+    return expr
   }
 
   private parseFilterExpression(): ExpressionNode {
-    let expr = this.parseComparisonExpression()
+    let expr = this.parsePrimaryExpression()
 
     while (this.check(TokenType.PIPE)) {
       this.advance() // |
@@ -481,30 +510,6 @@ export class JinjaParser extends HTMLParser {
         filterName,
         arguments: args,
       } as FilterNode
-    }
-
-    return expr
-  }
-
-  private parseComparisonExpression(): ExpressionNode {
-    let expr = this.parsePrimaryExpression()
-
-    while (this.check(TokenType.EQ) || this.check(TokenType.STRICT_EQ) || 
-           this.check(TokenType.NE) || this.check(TokenType.STRICT_NE) ||
-           this.check(TokenType.LT) || this.check(TokenType.LE) ||
-           this.check(TokenType.GT) || this.check(TokenType.GE)) {
-      
-      const operator = this.advance()
-      this.skipWhitespace()
-      const right = this.parsePrimaryExpression()
-
-      expr = {
-        type: 'Expression',
-        expressionType: 'BinaryOperation',
-        operator: operator.value,
-        left: expr,
-        right: right,
-      } as any
     }
 
     return expr
@@ -565,7 +570,11 @@ export class JinjaParser extends HTMLParser {
   private parseAttributeAccess(): ExpressionNode {
     let expr = this.parseIdentifier()
 
-    while (this.check(TokenType.DOT) || this.check(TokenType.LPAREN) || this.check(TokenType.LBRACKET)) {
+    while (
+      this.check(TokenType.DOT) ||
+      this.check(TokenType.LPAREN) ||
+      this.check(TokenType.LBRACKET)
+    ) {
       if (this.check(TokenType.DOT)) {
         this.advance() // .
         const property = this.parseIdentifier()
@@ -576,18 +585,84 @@ export class JinjaParser extends HTMLParser {
           property: property,
         } as any
       } else if (this.check(TokenType.LBRACKET)) {
-        // Array/dictionary access
+        // Array/dictionary access or slice
         this.advance() // [
         this.skipWhitespace()
-        const index = this.parseExpression()
-        this.skipWhitespace()
-        this.consume(TokenType.RBRACKET, 'Expected "]"')
-        expr = {
-          type: 'Expression',
-          expressionType: 'SubscriptAccess',
-          object: expr,
-          index: index,
-        } as any
+
+        // Check if this is a slice (contains colon)
+        let isSlice = false
+        let lookahead = this.current
+        let depth = 0
+        while (lookahead < this.tokens.length) {
+          const token = this.tokens[lookahead]
+          if (token.type === TokenType.LBRACKET) depth++
+          else if (token.type === TokenType.RBRACKET) {
+            if (depth === 0) break
+            depth--
+          } else if (token.type === TokenType.COLON && depth === 0) {
+            isSlice = true
+            break
+          }
+          lookahead++
+        }
+
+        if (isSlice) {
+          // Parse slice [start:stop:step]
+          let start: ExpressionNode | null = null
+          let stop: ExpressionNode | null = null
+          let step: ExpressionNode | null = null
+
+          // Parse start
+          if (!this.check(TokenType.COLON)) {
+            start = this.parseExpression()
+          }
+          this.skipWhitespace()
+
+          // First colon
+          if (this.check(TokenType.COLON)) {
+            this.advance() // :
+            this.skipWhitespace()
+
+            // Parse stop
+            if (!this.check(TokenType.COLON) && !this.check(TokenType.RBRACKET)) {
+              stop = this.parseExpression()
+            }
+            this.skipWhitespace()
+
+            // Second colon (for step)
+            if (this.check(TokenType.COLON)) {
+              this.advance() // :
+              this.skipWhitespace()
+
+              // Parse step
+              if (!this.check(TokenType.RBRACKET)) {
+                step = this.parseExpression()
+              }
+              this.skipWhitespace()
+            }
+          }
+
+          this.consume(TokenType.RBRACKET, 'Expected "]"')
+          expr = {
+            type: 'Expression',
+            expressionType: 'SliceAccess',
+            object: expr,
+            start: start,
+            stop: stop,
+            step: step,
+          } as any
+        } else {
+          // Regular subscript access
+          const index = this.parseExpression()
+          this.skipWhitespace()
+          this.consume(TokenType.RBRACKET, 'Expected "]"')
+          expr = {
+            type: 'Expression',
+            expressionType: 'SubscriptAccess',
+            object: expr,
+            index: index,
+          } as any
+        }
       } else if (this.check(TokenType.LPAREN)) {
         // Function call
         this.advance() // (
@@ -645,8 +720,20 @@ export class JinjaParser extends HTMLParser {
 
   private parseTemplateBody(endTags: string[]): any[] {
     const body = []
+    let lastPosition = -1
 
     while (!this.isAtEnd() && !this.checkAnyTemplateTag(endTags)) {
+      // Infinite loop prevention
+      if (this.current === lastPosition) {
+        console.error(
+          `Parser stuck at position ${this.current}, token: ${JSON.stringify(this.peek())}`,
+        )
+        throw new Error(
+          `Parser stuck at position ${this.current}. Current token: ${this.peek().type}`,
+        )
+      }
+      lastPosition = this.current
+
       const node = this.parseNode()
       if (node) {
         body.push(node)

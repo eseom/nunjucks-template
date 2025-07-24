@@ -24,6 +24,12 @@
     "html-with-jinja": {
       "patterns": [
         {
+          "include": "#jinja-style-tag"
+        },
+        {
+          "include": "#jinja-script-tag"
+        },
+        {
           "include": "#html-tag-with-jinja"
         },
         {
@@ -253,6 +259,110 @@
     "jinja-variables": {
       "name": "variable.other.jinja",
       "match": "\\b[a-zA-Z_][a-zA-Z0-9_\\.]*\\b"
+    },
+    "jinja-style-tag": {
+      "name": "meta.embedded.block.css",
+      "begin": "(?i)(<)(style)\\b([^>]*)(>)",
+      "end": "(?i)(</)(style)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "patterns": [
+            {
+              "include": "#jinja-expressions"
+            },
+            {
+              "include": "text.html.basic#attribute"
+            }
+          ]
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "contentName": "source.css.embedded.html",
+      "patterns": [
+        {
+          "include": "#jinja-comments"
+        },
+        {
+          "include": "#jinja-statements"
+        },
+        {
+          "include": "#jinja-expressions"
+        },
+        {
+          "include": "source.css"
+        }
+      ]
+    },
+    "jinja-script-tag": {
+      "name": "meta.embedded.block.javascript",
+      "begin": "(?i)(<)(script)\\b([^>]*)(>)",
+      "end": "(?i)(</)(script)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "patterns": [
+            {
+              "include": "#jinja-expressions"
+            },
+            {
+              "include": "text.html.basic#attribute"
+            }
+          ]
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "contentName": "source.js.embedded.html",
+      "patterns": [
+        {
+          "include": "#jinja-comments"
+        },
+        {
+          "include": "#jinja-statements"
+        },
+        {
+          "include": "#jinja-expressions"
+        },
+        {
+          "include": "source.js"
+        }
+      ]
     }
   }
 }

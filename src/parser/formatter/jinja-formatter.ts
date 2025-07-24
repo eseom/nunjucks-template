@@ -1,8 +1,147 @@
+import { getCSSLanguageService, TextDocument } from 'vscode-css-languageservice'
 import { BaseFormatter, FormattingOptions } from './formatter'
 
 export { FormattingOptions }
 
 export class JinjaFormatter extends BaseFormatter {
+  private cssLanguageService = getCSSLanguageService()
+
+  protected formatElement(node: any, options: FormattingOptions, indentLevel: number): string {
+    // Special handling for <style> tags to use VS Code CSS formatter
+    if (node.tagName === 'style') {
+      return this.formatStyleElement(node, options, indentLevel)
+    }
+
+    return super.formatElement(node, options, indentLevel)
+  }
+
+  private formatStyleElement(node: any, options: FormattingOptions, indentLevel: number): string {
+    const indent = this.getIndent(options, indentLevel)
+    const attributes = this.formatAttributes(node.attributes, options)
+
+    if (!node.children || node.children.length === 0) {
+      return `${indent}<style${attributes}></style>`
+    }
+
+    // Extract CSS content
+    const cssContent = node.children
+      .map((child: any) => {
+        if (child.type === 'Text') {
+          return child.value
+        }
+        return ''
+      })
+      .join('')
+
+    if (!cssContent.trim()) {
+      return `${indent}<style${attributes}></style>`
+    }
+
+    try {
+      // Use VS Code CSS Language Service to format the CSS
+      const cssDocument = TextDocument.create('temp.css', 'css', 1, cssContent)
+      const stylesheet = this.cssLanguageService.parseStylesheet(cssDocument)
+
+      // Get formatting options for CSS
+      const formatOptions = {
+        insertSpaces: options.insertSpaces ?? true,
+        tabSize: options.tabSize ?? options.indentSize ?? 2,
+      }
+
+      // Format the CSS content
+      const edits = this.cssLanguageService.format(cssDocument, undefined, formatOptions)
+
+      let formattedCSS = cssContent
+      if (edits && edits.length > 0) {
+        // Apply edits in reverse order to maintain positions
+        edits.sort(
+          (a, b) =>
+            b.range.start.line - a.range.start.line ||
+            b.range.start.character - a.range.start.character,
+        )
+
+        const lines = formattedCSS.split('\n')
+        edits.forEach((edit) => {
+          const startLine = edit.range.start.line
+          const startChar = edit.range.start.character
+          const endLine = edit.range.end.line
+          const endChar = edit.range.end.character
+
+          if (startLine === endLine) {
+            // Single line edit
+            lines[startLine] =
+              lines[startLine].slice(0, startChar) + edit.newText + lines[startLine].slice(endChar)
+          } else {
+            // Multi-line edit
+            const beforeText = lines[startLine].slice(0, startChar)
+            const afterText = lines[endLine].slice(endChar)
+            const newLines = [beforeText + edit.newText + afterText]
+            lines.splice(startLine, endLine - startLine + 1, ...newLines)
+          }
+        })
+        formattedCSS = lines.join('\n')
+      }
+
+      // Clean and apply proper indentation to each line of the formatted CSS
+      const cssLines = formattedCSS.split('\n')
+      const indentedCSS = cssLines
+        .map((line: string, index: number) => {
+          const trimmedLine = line.trim()
+          if (trimmedLine === '') {
+            // Preserve empty lines but don't add unnecessary whitespace
+            return index === 0 || index === cssLines.length - 1 ? '' : ''
+          }
+
+          // Determine indentation level based on CSS structure
+          let cssIndentLevel = indentLevel + 1 // Base indentation for CSS content
+
+          // If the line starts with a CSS property (contains colon) or is inside a rule
+          // add an extra level of indentation
+          if (
+            trimmedLine.includes(':') &&
+            !trimmedLine.startsWith('@') &&
+            !trimmedLine.startsWith('/*')
+          ) {
+            // This is likely a CSS property, add extra indentation
+            cssIndentLevel += 1
+          } else if (trimmedLine === '}') {
+            // Closing brace should align with the selector
+            cssIndentLevel = indentLevel + 1
+          } else if (trimmedLine.endsWith('{')) {
+            // Opening brace line (selector) should have base CSS indentation
+            cssIndentLevel = indentLevel + 1
+          }
+
+          // Apply template indentation + CSS-specific indentation
+          return this.getIndent(options, cssIndentLevel) + trimmedLine
+        })
+        .filter((line, index, array) => {
+          // Remove empty lines at the beginning and end
+          if (line.trim() === '') {
+            return index !== 0 && index !== array.length - 1
+          }
+          return true
+        })
+        .join('\n')
+
+      return `${indent}<style${attributes}>\n${indentedCSS}\n${indent}</style>`
+    } catch (error) {
+      // Fallback to simple formatting if CSS parsing fails
+      console.warn('CSS formatting failed, using fallback:', error)
+      const lines = cssContent.split('\n')
+      const indentedCSS = lines
+        .map((line: string) => {
+          const trimmedLine = line.trim()
+          if (trimmedLine === '') return ''
+          return this.getIndent(options, indentLevel + 1) + trimmedLine
+        })
+        .filter((line) => line.length > 0)
+        .join('\n')
+
+      return `${indent}<style${attributes}>\n${indentedCSS}\n${indent}</style>`
+    }
+  }
+
   protected formatNode(node: any, options: FormattingOptions, indentLevel: number): string {
     // First handle basic HTML nodes
     const baseResult = super.formatNode(node, options, indentLevel)
@@ -83,7 +222,7 @@ export class JinjaFormatter extends BaseFormatter {
 
   private formatForStatement(node: any, options: FormattingOptions, indentLevel: number): string {
     const indent = this.getIndent(options, indentLevel)
-    
+
     // Handle multiple targets (e.g., key, value)
     let targetExpr: string
     if (Array.isArray(node.target)) {
@@ -91,7 +230,7 @@ export class JinjaFormatter extends BaseFormatter {
     } else {
       targetExpr = this.formatExpression(node.target)
     }
-    
+
     const iterExpr = this.formatExpression(node.iter)
 
     let result = `${indent}{% for ${targetExpr} in ${iterExpr} %}`
@@ -227,6 +366,17 @@ export class JinjaFormatter extends BaseFormatter {
         const subscriptObject = this.formatExpression(expr.object)
         const index = this.formatExpression(expr.index)
         return `${subscriptObject}[${index}]`
+      case 'SliceAccess':
+        const sliceObject = this.formatExpression(expr.object)
+        const start = expr.start ? this.formatExpression(expr.start) : ''
+        const stop = expr.stop ? this.formatExpression(expr.stop) : ''
+        const step = expr.step ? this.formatExpression(expr.step) : ''
+
+        if (step) {
+          return `${sliceObject}[${start}:${stop}:${step}]`
+        } else {
+          return `${sliceObject}[${start}:${stop}]`
+        }
       case 'FunctionCall':
         const funcName = this.formatExpression(expr.function)
         const funcArgs = expr.arguments

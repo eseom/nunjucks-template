@@ -15,8 +15,10 @@ import { TokenType, VOID_ELEMENTS } from '../lexer/tokens'
 export class HTMLParser {
   protected tokens: Token[]
   protected current: number = 0
+  protected originalInput: string
 
   constructor(input: string) {
+    this.originalInput = input
     const tokenizer = new SimpleTokenizer(input)
     this.tokens = tokenizer.tokenize().filter(
       (token) => token.type !== TokenType.WHITESPACE, // Remove whitespace tokens (can be kept if needed)
@@ -95,16 +97,31 @@ export class HTMLParser {
 
     // Parse children if not self-closing or void element
     if (!selfClosing && !isVoid) {
-      while (!this.isAtEnd() && !this.isClosingTag(tagName)) {
-        const child = this.parseNode()
-        if (
-          child &&
-          (child.type === 'Element' ||
-            child.type === 'Text' ||
-            child.type === 'Comment' ||
-            'templateType' in child)
-        ) {
-          children.push(child as ElementNode | TextNode | CommentNode | TemplateNode)
+      // Special handling for <style> tags to preserve original formatting
+      if (tagName.toLowerCase() === 'style') {
+        const styleContent = this.parseStyleContent(startToken.start.offset)
+        if (styleContent) {
+          children.push({
+            type: 'Text',
+            value: styleContent,
+            loc: {
+              start: startToken.start,
+              end: this.peek().start,
+            },
+          })
+        }
+      } else {
+        while (!this.isAtEnd() && !this.isClosingTag(tagName)) {
+          const child = this.parseNode()
+          if (
+            child &&
+            (child.type === 'Element' ||
+              child.type === 'Text' ||
+              child.type === 'Comment' ||
+              'templateType' in child)
+          ) {
+            children.push(child as ElementNode | TextNode | CommentNode | TemplateNode)
+          }
         }
       }
 
@@ -271,6 +288,25 @@ export class HTMLParser {
       return this.tokens[this.tokens.length - 1] // EOF token
     }
     return this.tokens[this.current + 1]
+  }
+
+  private parseStyleContent(styleStartOffset: number): string {
+    // Find the closing </style> tag in the original input
+    const styleOpenEnd = this.originalInput.indexOf('>', styleStartOffset)
+    if (styleOpenEnd === -1) return ''
+
+    const styleCloseStart = this.originalInput.toLowerCase().indexOf('</style>', styleOpenEnd)
+    if (styleCloseStart === -1) return ''
+
+    // Extract the content between <style> and </style>
+    const content = this.originalInput.substring(styleOpenEnd + 1, styleCloseStart)
+
+    // Skip over the style content tokens in the parser
+    while (!this.isAtEnd() && !this.isClosingTag('style')) {
+      this.advance()
+    }
+
+    return content
   }
 
   protected previous(): Token {

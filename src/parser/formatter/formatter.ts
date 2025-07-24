@@ -6,6 +6,8 @@ export interface FormattingOptions {
   maxLineLength: number
   preserveEmptyLines: number
   insertFinalNewline: boolean
+  insertSpaces?: boolean
+  tabSize?: number
 }
 
 export interface Formatter {

@@ -1,4 +1,3 @@
-import * as vscode from 'vscode'
 import { FormattingOptions, JinjaFormatter } from './formatter/jinja-formatter'
 import { JinjaParser } from './parser/jinja-parser'
 

@@ -352,6 +352,7 @@
     {% endif %}
   {% endfor %}
   <div class="search_list"></div>
+  </div>
 {% endblock %}
 {% block tail_js %}
   {{ super() }}

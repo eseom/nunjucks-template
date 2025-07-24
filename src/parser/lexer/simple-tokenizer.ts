@@ -302,7 +302,7 @@ export class SimpleTokenizer {
     }
 
     const value = this.input.substring(start, this.position)
-    this.advance() // 끝 따옴표
+    this.advance() // closing quote
     this.addToken(TokenType.STRING, value)
   }
 
@@ -417,6 +417,10 @@ export class SimpleTokenizer {
           this.advance()
         }
         break
+      case ':':
+        this.addToken(TokenType.COLON, ':')
+        this.advance()
+        break
       default:
         this.advance()
         break
@@ -448,7 +452,7 @@ export class SimpleTokenizer {
       const value = this.input.substring(start, this.position)
       this.addToken(TokenType.TEXT, value)
     } else {
-      this.advance() // 알 수 없는 문자 건너뛰기
+      this.advance() // skip unknown character
     }
   }
 
