@@ -83,7 +83,15 @@ export class JinjaFormatter extends BaseFormatter {
 
   private formatForStatement(node: any, options: FormattingOptions, indentLevel: number): string {
     const indent = this.getIndent(options, indentLevel)
-    const targetExpr = this.formatExpression(node.target)
+    
+    // Handle multiple targets (e.g., key, value)
+    let targetExpr: string
+    if (Array.isArray(node.target)) {
+      targetExpr = node.target.map((target: any) => this.formatExpression(target)).join(', ')
+    } else {
+      targetExpr = this.formatExpression(node.target)
+    }
+    
     const iterExpr = this.formatExpression(node.iter)
 
     let result = `${indent}{% for ${targetExpr} in ${iterExpr} %}`
@@ -233,6 +241,10 @@ export class JinjaFormatter extends BaseFormatter {
       case 'KeywordArgument':
         const value = this.formatExpression(expr.value)
         return `${expr.key}=${value}`
+      case 'BinaryOperation':
+        const left = this.formatExpression(expr.left)
+        const right = this.formatExpression(expr.right)
+        return `${left} ${expr.operator} ${right}`
       default:
         return String(expr.value || expr.name || '')
     }

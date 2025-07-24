@@ -355,8 +355,67 @@ export class SimpleTokenizer {
         this.advance()
         break
       case '=':
-        this.addToken(TokenType.ASSIGN, '=')
-        this.advance()
+        if (this.peek(1) === '=') {
+          if (this.peek(2) === '=') {
+            // ===
+            this.addToken(TokenType.STRICT_EQ, '===')
+            this.advance()
+            this.advance()
+            this.advance()
+          } else {
+            // ==
+            this.addToken(TokenType.EQ, '==')
+            this.advance()
+            this.advance()
+          }
+        } else {
+          // =
+          this.addToken(TokenType.ASSIGN, '=')
+          this.advance()
+        }
+        break
+      case '!':
+        if (this.peek(1) === '=') {
+          if (this.peek(2) === '=') {
+            // !==
+            this.addToken(TokenType.STRICT_NE, '!==')
+            this.advance()
+            this.advance()
+            this.advance()
+          } else {
+            // !=
+            this.addToken(TokenType.NE, '!=')
+            this.advance()
+            this.advance()
+          }
+        } else {
+          // Single ! - could be for 'not' operator, but for now just skip
+          this.advance()
+        }
+        break
+      case '<':
+        if (this.peek(1) === '=') {
+          // <=
+          this.addToken(TokenType.LE, '<=')
+          this.advance()
+          this.advance()
+        } else {
+          // <
+          this.addToken(TokenType.LT, '<')
+          this.advance()
+        }
+        break
+      case '>':
+        if (this.peek(1) === '=') {
+          // >=
+          this.addToken(TokenType.GE, '>=')
+          this.advance()
+          this.advance()
+        } else {
+          // >
+          this.addToken(TokenType.GT, '>')
+          this.advance()
+        }
         break
       default:
         this.advance()

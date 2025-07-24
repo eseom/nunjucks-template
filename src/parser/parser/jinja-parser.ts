@@ -127,8 +127,18 @@ export class JinjaParser extends HTMLParser {
     this.consume(TokenType.FOR, 'Expected "for"')
     this.skipWhitespace()
 
-    const target = this.parseIdentifier()
+    // Parse target(s) - can be single identifier or multiple identifiers separated by commas
+    const targets: any[] = []
+    targets.push(this.parseIdentifier())
+    
     this.skipWhitespace()
+    while (this.check(TokenType.COMMA)) {
+      this.advance() // consume comma
+      this.skipWhitespace()
+      targets.push(this.parseIdentifier())
+      this.skipWhitespace()
+    }
+
     this.consume(TokenType.IN, 'Expected "in"')
     this.skipWhitespace()
 
@@ -153,7 +163,7 @@ export class JinjaParser extends HTMLParser {
     return {
       type: 'TemplateTag',
       templateType: 'ForStatement',
-      target,
+      target: targets.length === 1 ? targets[0] : targets,
       iter,
       body,
       orelse,
@@ -380,7 +390,31 @@ export class JinjaParser extends HTMLParser {
   }
 
   private parseExpression(): ExpressionNode {
-    return this.parseFilterExpression()
+    return this.parseComparisonExpression()
+  }
+
+  private parseComparisonExpression(): ExpressionNode {
+    let expr = this.parseFilterExpression()
+
+    while (this.check(TokenType.EQ) || this.check(TokenType.STRICT_EQ) || 
+           this.check(TokenType.NE) || this.check(TokenType.STRICT_NE) ||
+           this.check(TokenType.LT) || this.check(TokenType.LE) ||
+           this.check(TokenType.GT) || this.check(TokenType.GE)) {
+      
+      const operator = this.advance()
+      this.skipWhitespace()
+      const right = this.parseFilterExpression()
+
+      expr = {
+        type: 'Expression',
+        expressionType: 'BinaryOperation',
+        operator: operator.value,
+        left: expr,
+        right: right,
+      } as any
+    }
+
+    return expr
   }
 
   private parseFilterExpression(): ExpressionNode {

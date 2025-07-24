@@ -56,6 +56,16 @@ export enum TokenType {
   RBRACKET = 'RBRACKET', // ]
   COMMA = 'COMMA', // ,
   ASSIGN = 'ASSIGN', // =
+  
+  // 비교 연산자
+  EQ = 'EQ', // ==
+  STRICT_EQ = 'STRICT_EQ', // ===
+  NE = 'NE', // !=
+  STRICT_NE = 'STRICT_NE', // !==
+  LT = 'LT', // <
+  LE = 'LE', // <=
+  GT = 'GT', // >
+  GE = 'GE', // >=
 
   // 리터럴
   IDENTIFIER = 'IDENTIFIER',

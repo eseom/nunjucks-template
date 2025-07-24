@@ -1,362 +1,87 @@
-{% extends 'admin/list.html' %}
-{% block head_css %}
-  {{ super() }} <style>
-  /* CSS 변수로 색상 관리 */:root
-  {
-    /* Primary Colors */
-    --primary-blue: #3b82f6;
-    --primary-blue-light: #60a5fa;
-    --primary-blue-dark: #1d4ed8;
-    /* Secondary Colors */
-    --secondary-gray: #6b7280;
-    --secondary-gray-light: #f3f4f6;
-    --secondary-gray-dark: #374151;
-    /* Status Colors */
-    --status-success: #10b981;
-    --status-error: #ef4444;
-    --status-warning: #f59e0b;
-    --status-info: #3b82f6;
-    /* Background Colors */
-    --bg-primary: #ffffff;
-    --bg-secondary: #f9fafb;
-    --bg-tertiary: #f3f4f6;
-    /* Border Colors */
-    --border-light: #e5e7eb;
-    --border-medium: #d1d5db;
-    /* Text Colors */
-    --text-primary: #111827;
-    --text-secondary: #6b7280;
-    --text-muted: #9ca3af;
-    /* Accent Colors */
-    --accent-purple: #8b5cf6;
-    --accent-yellow: #fbbf24;
-    --accent-cyan: #06b6d4;
-    --accent-orange: #f97316;
-  }
-  /* 상단 고정 툴바 */
-  .top-toolbar {
-    position: fixed;
-    top: 56px;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-light);
-    padding: 3px 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: top 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
-  }
-  /* 스크롤 시 상단 고정 */
-  .top-toolbar.scrolled {
-    top: 0;
-  }
-  /* 모바일 메뉴 펼쳐질 때 toolbar 숨김 */
-  .top-toolbar.mobile-menu-open {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-100%);
-  }
-  /* 검색 입력창 컨테이너 */
-  .search-container {
-    position: relative;
-    flex: 1;
-    max-width: 500px;
-  }
-  .top-toolbar .search-input {
-    width: 100%;
-    height: 28px;
-    font-size: 13px;
-    padding-right: 30px; /* 리셋 버튼 공간 확보 */
-  }
-  /* 리셋 버튼 */
-  .search-reset {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 14px;
-    padding: 2px;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    opacity: 0;
-    visibility: hidden;
-  }
-  .search-reset:hover {
-    background-color: var(--bg-tertiary);
-    color: var(--text-secondary);
-  }
-  .search-reset.visible {
-    opacity: 1;
-    visibility: visible;
-  }
-  .top-toolbar .btn {
-    height: 28px;
-    font-size: 11px;
-    padding: 2px 8px;
-    white-space: nowrap;
-    min-width: 40px;
-  }
-  /* 기존 floating-menu 제거 */
-  .floating-menu {
-    display: none;
-  }
-  /* 각 섹션의 헤더를 sticky하게 만들기 */
-  .sticky-header {
-    position: -webkit-sticky; /* Safari 지원 */
-    position: sticky;
-    top: 34px; /* top-toolbar 높이 (padding 3px * 2 + content height 28px) */
-    background: var(--bg-primary);
-    padding: 8px 0;
-    z-index: 10;
-    border-bottom: 1px solid var(--border-light);
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.2s ease, top 0.3s ease;
-  }
-  /* 스크롤 시 sticky header 위치 조정 */
-  .sticky-header.scrolled {
-    top: 34px; /* top-toolbar가 상단에 고정된 상태에서의 위치 */
-  }
-  /* 모바일 메뉴 펼쳐질 때 sticky header 위치 조정 */
-  .sticky-header.mobile-menu-open {
-    top: 0;
-  }
-  .sticky-header:hover {
-    background-color: var(--bg-secondary);
-  }
-  .sticky-header .checkbox-wrapper {
-    margin-right: 5px;
-    pointer-events: none; /* 체크박스 클릭 비활성화 */
-    min-width: 40px;
-    text-align: center;
-  }
-  .sticky-header .status-indicator {
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
-    min-width: 30px;
-    text-align: center;
-    line-height: 1.2;
-  }
-  .sticky-header .status-indicator.visible {
-    background-color: var(--status-success);
-    color: white;
-  }
-  .sticky-header .status-indicator.collapsed {
-    background-color: var(--status-error);
-    color: white;
-  }
-  .sticky-header .status-indicator.visible::before {
-    content: '✓';
-    margin-right: 2px;
-  }
-  .sticky-header .status-indicator.collapsed::before {
-    content: '✗';
-    margin-right: 2px;
-  }
-  .sticky-header .status-info {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    pointer-events: none; /* 텍스트 클릭 비활성화 */
-  }
-  .sticky-header .date-rule {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-left: auto;
-    pointer-events: none; /* 텍스트 클릭 비활성화 */
-  }
-  /* 각 섹션 간 간격 */
-  .section {
-    margin-bottom: 0;
-  }
-  .updated {
-    border-left: 5px solid var(--status-warning);
-  }
-  /* 메인 컨텐츠 영역 조정 */
-  .summary-body {
-    margin-top: 34px; /* top-toolbar 높이 (padding 3px * 2 + content height 28px) */
-  }
-  /* 모바일 메뉴 펼쳐질 때 컨텐츠 영역 조정 */
-  .summary-body.mobile-menu-open {
-    margin-top: 0;
-  }
-</style>{% endblock %}{% block body %}
-<!-- 상단 고정 툴바 -->
-<div class="top-toolbar">
-  <div class="search-container">
-    <input type="text" class="form-control search-input" placeholder="검색어를 입력하세요..." onkeyup="debouncedSearch(event)" oninput="toggleResetButton(this)"/>
-    <button type="button" class="search-reset" onclick="resetSearch()" title="검색어 지우기">×</button>
-  </div>
-  <button type="button" class="btn btn-info btn-xs" onclick="fullMode()">전체</button>
-  <button type="button" class="btn btn-success btn-xs" onclick="miniMode()">미니</button>
-  <button type="button" class="btn btn-info btn-xs" onclick="myMode()">내것만</button>
-  <button type="button" class="btn btn-success btn-xs" onclick="areaMode()">구역</button>
-</div>
-<div
-  class="summary-body">
-  {# <div class="col-md-12"> <ul class="nav nav-tabs"> {% for k, v in statuses.items() %} <li role="presentation" {% if request.args.part == k | string %} class="active" {% endif %}> <a href="{{ url_for('summary.index_view', part=k) }}">{{ v.name }} ({{ v.count }})</a> </li> {% endfor %} </ul> </div> #}
-  {% for k, v in statuses.items() %}
-    {% if k != 91 %}
-      <div class="section">
-        <h4 class="sticky-header" id="status{{ k }}" onclick="toggleStatus({{ k }})">
-          <div class="checkbox-wrapper">
-            <span class="status-indicator visible"></span>
-          </div>
-          <div class="status-info">
-            <span>{{ statuses[k].name }}</span>
-            <span>(<span class="myCount_{{ k }}"></span>/{{ statuses[k].count }})</span>
-          </div>
-          <span class="date-rule">날짜기준: {{ time_rules[k] }}</span>
-        </h4>
-        {% if status_part[k] | length > 0 %}
-          <ul class="list-group" id="sortable_{{ k }}" style="margin-bottom: 30px;">
-            {% for part in status_part[k] %}
-              <li class="list-group-item ui-state-default" data-id="{{ part.id }}" style="padding: 5px;" data-updated-at="{{ part.updated_at }}">
-                <span class="handle" style="display: inline-block; font-size: 16px;">
-                  <i class="glyphicon glyphicon-menu-hamburger" style="cursor: move;"></i>
-                </span>&nbsp;
-                <span style="cursor: pointer; background: transparent" onclick="toggleExtra(this)" class="badge">🎃️</span>
-                <span style="font-size: 14px; font-weight: bold; opacity: 1; background-color:{% if part.date == today %}#fbbf24{% else
-                  %}#e5e7eb;{% endif %}">{{ part.date }}
-                  {{ part.day }}</span>
-                {% if part.group %}
-                  <span style="font-size: 11px; color: #f97316">{{ part.group.name[:1] }}</span>
-                {% endif %}
-                <span style="font-size: 11px; color: #10b981" class="manager">{{ part.manager.email }}</span>
-                <a href="{{ url_for('summary.edit_view', id=part.id, url=request.url) }}" onclick="setRequestRead({{ part.id }}); updateReadStatus()">
-                  <span style="font-weight: bold;">
-                    {{ part.short_address }}
-                    {{ part.store_name }}
-                  </span>
-                </a>
-                <span
-                  onclick="openSimpleMemoModal('{{ part.id }}', this)"
-                  style="font-size: 12px; margin-top: 10px; background: #f3e8ff; padding: 1px; padding-left: 3px; padding-right: 3px;
-                    border-radius: 5px; cursor: pointer;">{{ part.simple_memo or '-' | safe }}</span>
-                <br class="extra"/> &nbsp;<span
-                  class="extra"
-                  onclick="openConstructionDetailModal('{{ part.id }}', this)"
-                  style="font-size: 12px; margin-top: 10px; background: #fef3c7; padding: 1px; padding-left: 3px; padding-right: 3px;
-                    border-radius: 5px; cursor: pointer;">{{ part.construction_detail or '-' | safe }}</span>
-                &nbsp;<span
-                  class="extra"
-                  onclick="openPhoneModal('{{ part.id }}', this)"
-                  style="font-size: 12px;background: #e0f2fe; padding: 1px; padding-left: 3px; padding-right: 3px; border-radius: 5px;
-                    cursor: pointer;">{{ part.phone | safe }}</span>
-                &nbsp;<a class="extra" href="{{ url_for('summary.save_phone', request_id=part.id) }}">💾</a>
-                {# <a href="intent://#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.dir/contact;S.name={{ part.store_name }};S.phone={{ part.phone }};end"> #}
-                {# 90 이하만 다음스텝으로 처리  #}
-                {% if part.status_id < 90 %}
-                  &nbsp;<span
-                    style="cursor: pointer"
-                    onclick="sendNext({{ part.id }}, {{ statuses[next_step[part.status_id]].id }}, '{{
-                      statuses[next_step[part.status_id]].name }}')"
-                    class="extra">➡️</span>
-                {% endif %}
-                <div class="modal" id="simpleMemoModal{{ part.id }}" tabindex="-1" role="dialog">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">
-                          <span>&times;</span>
-                        </button>
-                        <h4 class="modal-title">
-                          {{ part.short_address }}
-                          {{ part.store_name }}</h4>
-                      </div>
-                      <div class="modal-body">
-                        메모
-                        <textarea placeholder="메모를 입력해주세요." id="simpleMemoText{{ part.id }}" class="form-control" rows="8">{{ part.simple_memo }}</textarea>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-default btn-xs" data-dismiss="modal">취소</button>
-                        <button type="button" class="btn btn-primary btn-xs" data-dismiss="modal" onclick="saveSimpleMemo('{{ part.id }}')">저장</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal" id="constructionDetailModal{{ part.id }}" tabindex="-1" role="dialog">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">
-                          <span>&times;</span>
-                        </button>
-                        <h4 class="modal-title">
-                          {{ part.short_address }}
-                          {{ part.store_name }}</h4>
-                      </div>
-                      <div class="modal-body">
-                        공사내용
-                        <textarea placeholder="공사내용을 입력해주세요." id="constructionDetailText{{ part.id }}" class="form-control" rows="8">{{ part.construction_detail }}</textarea>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-default btn-xs" data-dismiss="modal">취소</button>
-                        <button
-                          type="button"
-                          class="btn btn-primary btn-xs"
-                          data-dismiss="modal"
-                          onclick="saveConstructionDetail('{{ part.id }}')">저장</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal" id="phoneModal{{ part.id }}" tabindex="-1" role="dialog">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">
-                          <span>&times;</span>
-                        </button>
-                        <h4 class="modal-title">
-                          {{ part.short_address }}
-                          {{ part.store_name }}</h4>
-                      </div>
-                      <div class="modal-body">
-                        <a href="tel:{{ part.phone }}" class="btn btn-default btn-xs">📞 {{ part.phone }} 전화걸기</a>
-                        <input placeholder="전화번호를 입력해주세요." id="phoneText{{ part.id }}" class="form-control" rows="8" value="{{ part.phone }}" style="margin-top: 10px;"/>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-default btn-xs" data-dismiss="modal">취소</button>
-                        <button type="button" class="btn btn-primary btn-xs" data-dismiss="modal" onclick="savePhone('{{ part.id }}')">저장</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </li>
+{% extends "base_layout.html" %}
+{% from _self import render_input %}
+
+{% macro render_input(name, value='', type='text', placeholder='') %}
+    <input
+        type="{{ type }}"
+        name="{{ name }}"
+        value="{{ value|e }}"
+        placeholder="{{ placeholder }}"
+        class="input-field {{ name }}"
+    >
+{% endmacro %}
+
+{% block title %}Jinja Test Page{% endblock %}
+
+{% block body %}
+<body class="{% if dark_mode == 'true' %}dark{% else %}light{% endif %}">
+    <header class="{{ user.role }}">
+        <h1>Welcome, {{ user.name|title }}</h1>
+        <p>Today is {{ now() }}</p>
+    </header>
+
+    <nav>
+        <ul>
+            {% for link in nav_links %}
+                <li class="{% if loop.first %}first{% elif loop.last %}last{% endif %}">
+                    <a href="{{ link.url }}">{{ link.label }}</a>
+                </li>
             {% endfor %}
-          </ul>
-        {% endif %}
-      </div>
-    {% endif %}
-  {% endfor %}
-  <div class="search_list"></div>
-{% endblock %}
-{% block tail_js %}
-  {{ super() }}
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-  <script src="{{ url_for('static', filename='js/admin/summary/list.js', v='2') }}"></script>
-  <script>
-  </script>
+        </ul>
+    </nav>
+
+    <main>
+        <section class="profile {{ 'highlight' if user.is_premium }}">
+            <h2>User Profile</h2>
+            {% if user.is_active === '' %}
+                <p>Status: <span class="active">Active</span></p>
+            {% else %}
+                <p>Status: <span class="inactive">Inactive</span></p>
+            {% endif %}
+            <p>Email: {{ user.email|default("No email provided") }}</p>
+            <p>Balance: $` + `{{ user.balance|float|round(2) }}` + `</p>
+        </section>
+
+        <section class="products">
+            <h2>Product List</h2>
+            <ul>
+            {% for product, v in products.items() %}
+                <li class="product-item {% if product.on_sale %}sale{% endif %}">
+                    <strong>{{ product.name }}</strong>
+                    - $` + `{{ product.price }}` + `
+                </li>
+            {% else %}
+                <li>No products available.</li>
+            {% endfor %}
+            </ul>
+        </section>
+
+        <section class="form-section">
+            <h2>Contact Form</h2>
+            <form method="post" class="contact-form">
+                {{ render_input('username', user.name, placeholder='Enter your name') }}
+                {{ render_input('email', user.email, type='email', placeholder='Enter your email') }}
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+
+        {% set announcement = "Server maintenance at midnight." %}
+        <section class="announcement">
+            <p><strong>Notice:</strong> {{ announcement }}</p>
+        </section>
+
+        <section class="raw-example">
+            <h2>Raw Block Example</h2>
+            {% raw %}
+            <p>This will not be rendered: {{ test_variable }}</p>
+            {% endraw %}
+        </section>
+
+        {# This is a Jinja comment and will not be rendered in the HTML #}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; {{ year }} MyCompany</p>
+    </footer>
+</body>
 {% endblock %}
