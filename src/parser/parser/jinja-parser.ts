@@ -92,7 +92,22 @@ export class JinjaParser extends HTMLParser {
     let alternate: any[] | undefined;
     
     // elif/else 처리
-    if (this.checkTemplateTag('elif') || this.checkTemplateTag('else')) {
+    if (this.checkTemplateTag('elif')) {
+      this.consume(TokenType.TEMPLATE_TAG_START, 'Expected "{%"');
+      this.skipWhitespace();
+      this.consume(TokenType.ELIF, 'Expected "elif"');
+      this.skipWhitespace();
+      // elif 조건 파싱 (나중에 구현)
+      const elifTest = this.parseExpression();
+      this.skipWhitespace();
+      this.consume(TokenType.TEMPLATE_TAG_END, 'Expected "%}"');
+      alternate = this.parseTemplateBody(['endif']);
+    } else if (this.checkTemplateTag('else')) {
+      this.consume(TokenType.TEMPLATE_TAG_START, 'Expected "{%"');
+      this.skipWhitespace();
+      this.consume(TokenType.ELSE, 'Expected "else"');
+      this.skipWhitespace();
+      this.consume(TokenType.TEMPLATE_TAG_END, 'Expected "%}"');
       alternate = this.parseTemplateBody(['endif']);
     }
     
@@ -129,7 +144,11 @@ export class JinjaParser extends HTMLParser {
     let orelse: any[] | undefined;
     
     if (this.checkTemplateTag('else')) {
-      this.consumeTemplateTag('else');
+      this.consume(TokenType.TEMPLATE_TAG_START, 'Expected "{%"');
+      this.skipWhitespace();
+      this.consume(TokenType.ELSE, 'Expected "else"');
+      this.skipWhitespace();
+      this.consume(TokenType.TEMPLATE_TAG_END, 'Expected "%}"');
       orelse = this.parseTemplateBody(['endfor']);
     }
     
@@ -455,7 +474,25 @@ export class JinjaParser extends HTMLParser {
         
         while (!this.check(TokenType.RPAREN) && !this.isAtEnd()) {
           this.skipWhitespace();
-          args.push(this.parseExpression());
+          
+          // 키워드 인수 확인 (identifier = expression)
+          if (this.check(TokenType.IDENTIFIER) && this.peekNext()?.type === TokenType.ASSIGN) {
+            const keyToken = this.advance(); // identifier
+            this.advance(); // =
+            const value = this.parseExpression();
+            
+            // 키워드 인수를 특별한 표현식으로 처리
+            args.push({
+              type: 'Expression',
+              expressionType: 'KeywordArgument',
+              key: keyToken.value,
+              value: value
+            } as any);
+          } else {
+            // 일반 위치 인수
+            args.push(this.parseExpression());
+          }
+          
           this.skipWhitespace();
           if (this.check(TokenType.COMMA)) {
             this.advance();
