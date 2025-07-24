@@ -4,7 +4,7 @@ import { Jinja2Formatter } from './parser/jinja2-formatter'
 
 // Load complex Jinja template from file
 function loadTestTemplate(): string {
-  const templatePath = path.join(__dirname, '..', 'src', 'complex-jinja-template.html')
+  const templatePath = path.join(__dirname, '..', 'src', 'complex-jinja-template2.html')
   return fs.readFileSync(templatePath, 'utf8')
 }
 

@@ -459,6 +459,21 @@ export class JinjaParser extends HTMLParser {
     switch (token.type) {
       case TokenType.IDENTIFIER:
         return this.parseAttributeAccess()
+      case TokenType.DOT:
+        // Handle expressions that start with a dot (e.g., .property)
+        // This can happen when object part is missing or malformed
+        this.advance() // consume the dot
+        const property = this.parseIdentifier()
+        return {
+          type: 'Expression',
+          expressionType: 'AttributeAccess',
+          object: {
+            type: 'Expression',
+            expressionType: 'Identifier',
+            name: '',
+          } as IdentifierNode,
+          property: property,
+        } as any
       case TokenType.STRING:
         this.advance()
         return {
@@ -493,7 +508,7 @@ export class JinjaParser extends HTMLParser {
   private parseAttributeAccess(): ExpressionNode {
     let expr = this.parseIdentifier()
 
-    while (this.check(TokenType.DOT) || this.check(TokenType.LPAREN)) {
+    while (this.check(TokenType.DOT) || this.check(TokenType.LPAREN) || this.check(TokenType.LBRACKET)) {
       if (this.check(TokenType.DOT)) {
         this.advance() // .
         const property = this.parseIdentifier()
@@ -502,6 +517,19 @@ export class JinjaParser extends HTMLParser {
           expressionType: 'AttributeAccess',
           object: expr,
           property: property,
+        } as any
+      } else if (this.check(TokenType.LBRACKET)) {
+        // Array/dictionary access
+        this.advance() // [
+        this.skipWhitespace()
+        const index = this.parseExpression()
+        this.skipWhitespace()
+        this.consume(TokenType.RBRACKET, 'Expected "]"')
+        expr = {
+          type: 'Expression',
+          expressionType: 'SubscriptAccess',
+          object: expr,
+          index: index,
         } as any
       } else if (this.check(TokenType.LPAREN)) {
         // Function call

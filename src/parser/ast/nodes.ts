@@ -95,6 +95,13 @@ export interface AssignmentNode extends ExpressionNode {
   value: ExpressionNode
 }
 
+export interface SubscriptAccessNode extends ExpressionNode {
+  type: 'Expression'
+  expressionType: 'SubscriptAccess'
+  object: ExpressionNode
+  index: ExpressionNode
+}
+
 // Specific template tags
 export interface IfStatementNode extends TemplateNode {
   type: 'TemplateTag'

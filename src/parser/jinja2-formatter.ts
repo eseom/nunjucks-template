@@ -20,7 +20,6 @@ export class Jinja2Formatter {
     }
 
     const formattingOptions = { ...defaultOptions, ...options }
-    console.log(formattingOptions)
 
     try {
       this.parser = new JinjaParser(input)

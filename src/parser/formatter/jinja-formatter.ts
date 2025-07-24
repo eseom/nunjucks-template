@@ -223,6 +223,10 @@ export class JinjaFormatter extends BaseFormatter {
         const object = this.formatExpression(expr.object)
         const property = this.formatExpression(expr.property)
         return `${object}.${property}`
+      case 'SubscriptAccess':
+        const subscriptObject = this.formatExpression(expr.object)
+        const index = this.formatExpression(expr.index)
+        return `${subscriptObject}[${index}]`
       case 'FunctionCall':
         const funcName = this.formatExpression(expr.function)
         const funcArgs = expr.arguments

@@ -13,7 +13,213 @@
 
 {% block title %}Jinja Test Page{% endblock %}
 
-{% block body %}
+{% extends 'admin/list.html' %}
+{% block head_css %}
+  {{ super() }} <style>
+  /* CSS 변수로 색상 관리 */:root
+  {
+    /* Primary Colors */
+    --primary-blue: #3b82f6;
+    --primary-blue-light: #60a5fa;
+    --primary-blue-dark: #1d4ed8;
+    /* Secondary Colors */
+    --secondary-gray: #6b7280;
+    --secondary-gray-light: #f3f4f6;
+    --secondary-gray-dark: #374151;
+    /* Status Colors */
+    --status-success: #10b981;
+    --status-error: #ef4444;
+    --status-warning: #f59e0b;
+    --status-info: #3b82f6;
+    /* Background Colors */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-tertiary: #f3f4f6;
+    /* Border Colors */
+    --border-light: #e5e7eb;
+    --border-medium: #d1d5db;
+    /* Text Colors */
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    /* Accent Colors */
+    --accent-purple: #8b5cf6;
+    --accent-yellow: #fbbf24;
+    --accent-cyan: #06b6d4;
+    --accent-orange: #f97316;
+  }
+  /* 상단 고정 툴바 */
+  .top-toolbar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-light);
+    padding: 3px 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: top 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+  }
+  /* 스크롤 시 상단 고정 */
+  .top-toolbar.scrolled {
+    top: 0;
+  }
+  /* 모바일 메뉴 펼쳐질 때 toolbar 숨김 */
+  .top-toolbar.mobile-menu-open {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-100%);
+  }
+  /* 검색 입력창 컨테이너 */
+  .search-container {
+    position: relative;
+    flex: 1;
+    max-width: 500px;
+  }
+  .top-toolbar .search-input {
+    width: 100%;
+    height: 28px;
+    font-size: 13px;
+    padding-right: 30px; /* 리셋 버튼 공간 확보 */
+  }
+  /* 리셋 버튼 */
+  .search-reset {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    opacity: 0;
+    visibility: hidden;
+  }
+  .search-reset:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+  }
+  .search-reset.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+  .top-toolbar .btn {
+    height: 28px;
+    font-size: 11px;
+    padding: 2px 8px;
+    white-space: nowrap;
+    min-width: 40px;
+  }
+  /* 기존 floating-menu 제거 */
+  .floating-menu {
+    display: none;
+  }
+  /* 각 섹션의 헤더를 sticky하게 만들기 */
+  .sticky-header {
+    position: -webkit-sticky; /* Safari 지원 */
+    position: sticky;
+    top: 34px; /* top-toolbar 높이 (padding 3px * 2 + content height 28px) */
+    background: var(--bg-primary);
+    padding: 8px 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--border-light);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, top 0.3s ease;
+  }
+  /* 스크롤 시 sticky header 위치 조정 */
+  .sticky-header.scrolled {
+    top: 34px; /* top-toolbar가 상단에 고정된 상태에서의 위치 */
+  }
+  /* 모바일 메뉴 펼쳐질 때 sticky header 위치 조정 */
+  .sticky-header.mobile-menu-open {
+    top: 0;
+  }
+  .sticky-header:hover {
+    background-color: var(--bg-secondary);
+  }
+  .sticky-header .checkbox-wrapper {
+    margin-right: 5px;
+    pointer-events: none; /* 체크박스 클릭 비활성화 */
+    min-width: 40px;
+    text-align: center;
+  }
+  .sticky-header .status-indicator {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    min-width: 30px;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .sticky-header .status-indicator.visible {
+    background-color: var(--status-success);
+    color: white;
+  }
+  .sticky-header .status-indicator.collapsed {
+    background-color: var(--status-error);
+    color: white;
+  }
+  .sticky-header .status-indicator.visible::before {
+    content: '✓';
+    margin-right: 2px;
+  }
+  .sticky-header .status-indicator.collapsed::before {
+    content: '✗';
+    margin-right: 2px;
+  }
+  .sticky-header .status-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    pointer-events: none; /* 텍스트 클릭 비활성화 */
+  }
+  .sticky-header .date-rule {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-left: auto;
+    pointer-events: none; /* 텍스트 클릭 비활성화 */
+  }
+  /* 각 섹션 간 간격 */
+  .section {
+    margin-bottom: 0;
+  }
+  .updated {
+    border-left: 5px solid var(--status-warning);
+  }
+  /* 메인 컨텐츠 영역 조정 */
+  .summary-body {
+    margin-top: 34px; /* top-toolbar 높이 (padding 3px * 2 + content height 28px) */
+  }
+  /* 모바일 메뉴 펼쳐질 때 컨텐츠 영역 조정 */
+  .summary-body.mobile-menu-open {
+    margin-top: 0;
+  }
+</style>{% endblock %}{% block body %}
+
+            <span>{{ statuses[k].name }}</span>
+
 <body class="{% if dark_mode == 'true' %}dark{% else %}light{% endif %}">
     <header class="{{ user.role }}">
         <h1>Welcome, {{ user.name|title }}</h1>
@@ -24,7 +230,7 @@
         <ul>
             {% for link in nav_links %}
                 <li class="{% if loop.first %}first{% elif loop.last %}last{% endif %}">
-                    <a href="{{ link.url }}">{{ link.label }}</a>
+                    <a href="{{ link.url[prod['tt']] }}">{{ link.label }}</a>
                 </li>
             {% endfor %}
         </ul>
@@ -41,6 +247,15 @@
             <p>Email: {{ user.email|default("No email provided") }}</p>
             <p>Balance: $` + `{{ user.balance|float|round(2) }}` + `</p>
         </section>
+
+                        {# 90 이하만 다음스텝으로 처리  #}
+                {% if part.status_id < 90 %}
+                  &nbsp;<span
+                    style="cursor: pointer"
+                    onclick="sendNext({{ part.id }}, {{ statuses[next_step[part.status_id]].id }}, '{{
+                      statuses[next_step[part.status_id]].name }}')"
+                    class="extra">➡️</span>
+                {% endif %}
 
         <section class="products">
             <h2>Product List</h2>
