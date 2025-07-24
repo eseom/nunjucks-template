@@ -1,11 +1,11 @@
 {
-  "name": "nunjucks-template",
-  "displayName": "Nunjucks Template",
-  "description": "Formatting, Syntax Highlighting, Hover, and Snippets for Nunjucks",
-  "version": "0.6.0",
+  "name": "jinja2-formatter",
+  "displayName": "Jinja2 Formatter",
+  "description": "Universal formatter and syntax highlighting for Jinja2 template family (Jinja2, Nunjucks, Twig, Django Templates)",
+  "version": "0.7.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/eseom/nunjucks-template"
+    "url": "https://github.com/eseom/jinja2-formatter"
   },
   "license": "MIT",
   "publisher": "eseom",
@@ -13,32 +13,102 @@
     "vscode": "^1.74.0"
   },
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Formatters"
+  ],
+  "keywords": [
+    "jinja2",
+    "nunjucks",
+    "twig",
+    "django",
+    "template",
+    "formatter",
+    "html"
   ],
   "icon": "images/icon.png",
   "activationEvents": [
-    "onLanguage:njk"
+    "onLanguage:jinja",
+    "onLanguage:jinja2",
+    "onLanguage:njk",
+    "onLanguage:nunjucks",
+    "onLanguage:twig",
+    "onLanguage:django-html"
   ],
   "main": "./out/extension",
   "contributes": {
     "configuration": {
-      "title": "NunjucksTemplate",
+      "title": "Jinja2 Formatter",
       "properties": {
-        "nunjucksTemplate.preserveEmptyLine": {
+        "jinja2Formatter.preserveEmptyLine": {
           "type": "number",
           "default": 0,
-          "description": "empty lines number to keep at formatting"
+          "description": "Number of empty lines to preserve during formatting"
+        },
+        "jinja2Formatter.useNewParser": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use the new Jinja2 parser engine for better formatting"
+        },
+        "jinja2Formatter.indentSize": {
+          "type": "number",
+          "default": 2,
+          "description": "Number of spaces for indentation"
+        },
+        "jinja2Formatter.maxLineLength": {
+          "type": "number",
+          "default": 120,
+          "description": "Maximum line length before wrapping"
+        },
+        "jinja2Formatter.templateEngine": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "jinja2",
+            "nunjucks",
+            "twig",
+            "django"
+          ],
+          "default": "auto",
+          "description": "Template engine to use for parsing (auto-detect by default)"
         }
       }
     },
     "snippets": [
       {
+        "language": "jinja",
+        "path": "./assets/snippets/jinja.json"
+      },
+      {
         "language": "njk",
-        "path": "./assets/snippets/snippets.json"
+        "path": "./assets/snippets/jinja.json"
+      },
+      {
+        "language": "twig",
+        "path": "./assets/snippets/jinja.json"
       }
     ],
-    "commands": [],
+    "commands": [
+      {
+        "command": "jinja2Formatter.formatDocument",
+        "title": "Format Jinja2 Template",
+        "category": "Jinja2"
+      }
+    ],
     "languages": [
+      {
+        "id": "jinja",
+        "aliases": [
+          "Jinja2",
+          "jinja",
+          "jinja2"
+        ],
+        "extensions": [
+          ".jinja",
+          ".jinja2",
+          ".j2"
+        ],
+        "configuration": "./assets/languages/configuration.json"
+      },
       {
         "id": "njk",
         "aliases": [
@@ -46,26 +116,38 @@
           "njk"
         ],
         "extensions": [
-          ".njk"
+          ".njk",
+          ".nunjucks"
+        ],
+        "configuration": "./assets/languages/configuration.json"
+      },
+      {
+        "id": "twig",
+        "aliases": [
+          "Twig",
+          "twig"
+        ],
+        "extensions": [
+          ".twig"
         ],
         "configuration": "./assets/languages/configuration.json"
       }
     ],
     "grammars": [
       {
-        "language": "njk",
-        "scopeName": "source.njk",
-        "path": "./assets/syntaxes/njk.json"
+        "language": "jinja",
+        "scopeName": "text.html.jinja",
+        "path": "./assets/syntaxes/jinja.json"
       },
       {
         "language": "njk",
-        "scopeName": "source.html",
-        "path": "./assets/syntaxes/html.json"
+        "scopeName": "text.html.jinja",
+        "path": "./assets/syntaxes/jinja.json"
       },
       {
-        "language": "njk",
-        "scopeName": "text.html.njk",
-        "path": "./assets/syntaxes/njk-html.json"
+        "language": "twig",
+        "scopeName": "text.html.jinja",
+        "path": "./assets/syntaxes/jinja.json"
       }
     ]
   },
@@ -75,12 +157,14 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "@types/vscode": "^1.74.0",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
+    "@types/vscode": "^1.74.0",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "@vscode/test-cli": "^0.0.4",
@@ -88,9 +172,9 @@
     "eslint": "^8.56.0",
     "glob": "^10.3.10",
     "mocha": "^10.2.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-organize-imports": "^4.2.0",
+    "prettydiff": "^101.2.6",
     "typescript": "^5.2.2"
-  },
-  "dependencies": {
-    "prettydiff": "^101.2.6"
   }
 }

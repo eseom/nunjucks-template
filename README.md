@@ -1,39 +1,173 @@
-# nunjucks-template
+# Jinja2 Family Template
 
-This is the Nunjucks-supporting extension for vscode with complete features.
+**Universal formatter and syntax highlighting for Jinja2 template family**
 
-# feature
+> The ID of this extension is nunjuck-template because it originated from Nunjucks. Since it is applicable to all Jinja2-based template engines actually, I wanted to transform this extension into a Jinja2 Family Template.
 
-- nunjucks template syntax
-- nunjucks formatter with prettydiff2
-- yaml syntax
+A Visual Studio Code extension for syntax highlighting, snippet support, and formatting assistance for Jinja2-family templating languages. This includes:
 
-## configurations
+- **Jinja2** (Python / Flask)
+- **Nunjucks** (Node.js / Eleventy)
+- **Django templates**
+- **Twig** (partial support)
 
-- By default, detects .nj, .njk files automatically.
-- Additionally, use `files.associations`
+---
 
-#### extension's own configurations
+## ✨ Features
 
-```json
-"nunjucksTemplate.preserveEmptyLine": 3
+- Integrated template formatter without any dependencies
+- Syntax highlighting
+- Comment toggling
+- Template block recognition
+- Language ID association for `.html`, `.njk`, `.j2`, `.jinja`, etc.
+- Lightweight and fast
+
+---
+
+## 🛠 Supported File Extensions
+
+| Extension | Recognized as |
+| --------- | ------------- |
+| `.j2`     | Jinja2        |
+| `.jinja`  | Jinja2        |
+| `.njk`    | Nunjucks      |
+| `.html`   | With `{% %}`  |
+| `.twig`   | (limited)     |
+
+---
+
+## 📦 Installation
+
+Search for `Jinja2 Family Template` in the **Extensions** sidebar in VS Code or install via CLI:
+
+```bash
+code --install-extension your-publisher-name.nunjucks-template
 ```
 
-(suggested at issue PR #30 by @sdegutis)
+# Jinja2 Formatter
 
-#### other configurations
+**Universal formatter and syntax highlighting for Jinja2 template family**
+
+A comprehensive VS Code extension that provides formatting, syntax highlighting, and snippets for multiple template engines in the Jinja2 family.
+
+## Supported Template Engines
+
+- **Jinja2** (`.jinja`, `.jinja2`, `.j2`) - Python templating engine
+- **Nunjucks** (`.njk`, `.nunjucks`) - JavaScript port of Jinja2
+- **Twig** (`.twig`) - PHP templating engine
+- **Django Templates** (`.html` with Django syntax) - Django's template system
+
+## Features
+
+✅ **Advanced Formatting**
+
+- Smart indentation for nested template blocks
+- Proper handling of `{% if %}`, `{% for %}`, `{% macro %}`, etc.
+- Support for complex expressions and filters
+- Keyword argument formatting in function calls
+
+✅ **Syntax Highlighting**
+
+- Template tags: `{% %}`
+- Variable expressions: `{{ }}`
+- Comments: `{# #}`
+- Mixed HTML + template syntax
+
+✅ **Auto-Detection**
+
+- Automatically detects template engine based on file extension
+- Fallback to universal Jinja2 syntax
+
+✅ **Modern Parser**
+
+- Built-in AST-based parser (replaces outdated prettydiff)
+- Better error handling and edge case support
+
+## Configuration
+
+## Configuration
+
+### Extension Settings
 
 ```json
-"files.associations": {
-  "*.html": "njk"
-},
+{
+  "jinja2Formatter.preserveEmptyLine": 1,
+  "jinja2Formatter.useNewParser": true,
+  "jinja2Formatter.indentSize": 2,
+  "jinja2Formatter.maxLineLength": 120,
+  "jinja2Formatter.templateEngine": "auto"
+}
+```
+
+### File Associations
+
+Associate your template files with the appropriate language:
+
+```json
+{
+  "files.associations": {
+    "*.html": "jinja",
+    "*.htm": "jinja",
+    "*.j2": "jinja",
+    "*.jinja": "jinja",
+    "*.jinja2": "jinja",
+    "*.njk": "njk",
+    "*.nunjucks": "njk",
+    "*.twig": "twig"
+  }
+}
+```
+
+## Usage
+
+1. **Automatic Formatting**: The extension will format your templates when you save (if format on save is enabled)
+2. **Manual Formatting**: Use `Ctrl+Shift+P` → "Format Document" or `Alt+Shift+F`
+3. **Custom Command**: Use `Ctrl+Shift+P` → "Format Jinja2 Template"
+
+## Template Examples
+
+### Jinja2/Nunjucks
+
+```jinja
+{% extends "base.html" %}
+
+{% block content %}
+  {% for item in items %}
+    <div class="item {% if item.featured %}featured{% endif %}">
+      <h2>{{ item.title|title }}</h2>
+      <p>{{ item.description|truncate(100) }}</p>
+    </div>
+  {% endfor %}
+{% endblock %}
+```
+
+### Twig
+
+```twig
+{% extends "base.html.twig" %}
+
+{% block content %}
+  {% for item in items %}
+    <div class="item {{ item.featured ? 'featured' : '' }}">
+      <h2>{{ item.title|title }}</h2>
+      <p>{{ item.description|truncate(100) }}</p>
+    </div>
+  {% endfor %}
+{% endblock %}
 ```
 
 - For vscode embedded emmet, notify that `njk` is html file type
 
 ```json
 "emmet.includeLanguages": {
-  "njk": "html"
+  "html": "html",
+  "htm": "html",
+  "j2": "html",
+  "jinja": "html",
+  "jinja2": "html",
+  "njk": "html",
+  "nunjucks": "html",
+  "twig": "html"
 },
 ```
 
@@ -47,7 +181,7 @@ This is the Nunjucks-supporting extension for vscode with complete features.
 
 ```json
 "vsicons.associations.files": [
-  { "icon": "nunjucks", "extensions": ["njk"], "format": "svg" }
+  { "icon": "nunjucks", "extensions": ["njk", "html", "htm", "j2", "jinja", "jinja2", "nunjucks", "twig"], "format": "svg" }
 ],
 ```
 
@@ -55,7 +189,14 @@ This is the Nunjucks-supporting extension for vscode with complete features.
 
 ```json
 "material-icon-theme.files.associations": {
-  "*.html": "nunjucks"
+  "*.html": "jinja2",
+  "*.htm": "jinja2",
+  "*.j2": "jinja2",
+  "*.jinja": "jinja2",
+  "*.jinja2": "jinja2",
+  "*.njk": "jinja2",
+  "*.nunjucks": "jinja2",
+  "*.twig": "jinja2",
 },
 ```
 
@@ -63,13 +204,13 @@ This is the Nunjucks-supporting extension for vscode with complete features.
 
 | Trigger   | Snippet                             |
 | --------- | ----------------------------------- |
-| n-extends | {% extends '${name}' %}             |
-| n-block   | {% block ${name} %}{% endblock %}   |
-| n-if      | {% if condition %}{% endif %}       |
-| n-for     | {% for ${condition} %}{% endfor %}  |
-| n-macro   | {% macro ${name}() %}{% endmacro %} |
+| j-extends | {% extends '${name}' %}             |
+| j-block   | {% block ${name} %}{% endblock %}   |
+| j-if      | {% if condition %}{% endif %}       |
+| j-for     | {% for ${condition} %}{% endfor %}  |
+| j-macro   | {% macro ${name}() %}{% endmacro %} |
 
 ## links
 
-- https://github.com/eseom/nunjucks-template
+- https://github.com/eseom/jinja2-family-formatter
 - https://marketplace.visualstudio.com/items?itemName=eseom.nunjucks-template#overview

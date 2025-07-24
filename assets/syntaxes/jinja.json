@@ -1,0 +1,258 @@
+{
+  "name": "jinja2-html",
+  "scopeName": "text.html.jinja",
+  "comment": "Jinja2 Template",
+  "fileTypes": ["jinja", "jinja2", "j2", "html"],
+  "firstLineMatch": "^{% extends [\"'][^\"']+[\"'] %}",
+  "foldingStartMarker": "(<(?i:(head|table|tr|div|style|script|ul|ol|form|dl))\\b.*?>|{%\\s*(block|filter|for|if|macro|raw|with|autoescape))",
+  "foldingStopMarker": "(</(?i:(head|table|tr|div|style|script|ul|ol|form|dl))\\b.*?>|{%\\s*(endblock|endfilter|endfor|endif|endmacro|endraw|endwith|endautoescape)\\s*%})",
+  "patterns": [
+    {
+      "include": "#jinja-comments"
+    },
+    {
+      "include": "#jinja-statements"
+    },
+    {
+      "include": "#jinja-expressions"
+    },
+    {
+      "include": "#html-with-jinja"
+    }
+  ],
+  "repository": {
+    "html-with-jinja": {
+      "patterns": [
+        {
+          "include": "#html-tag-with-jinja"
+        },
+        {
+          "include": "text.html.basic"
+        }
+      ]
+    },
+    "html-tag-with-jinja": {
+      "name": "meta.tag.html",
+      "begin": "(<)(\\w+)",
+      "end": "(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#html-attribute-with-jinja"
+        }
+      ]
+    },
+    "html-attribute-with-jinja": {
+      "patterns": [
+        {
+          "name": "meta.attribute.html",
+          "begin": "\\s+([a-zA-Z\\-:]+)\\s*(=)\\s*",
+          "end": "(?=\\s|>)",
+          "beginCaptures": {
+            "1": {
+              "name": "entity.other.attribute-name.html"
+            },
+            "2": {
+              "name": "punctuation.separator.key-value.html"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#html-attribute-value-with-jinja"
+            }
+          ]
+        }
+      ]
+    },
+    "html-attribute-value-with-jinja": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.html",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "include": "#jinja-in-attribute"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.html",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "include": "#jinja-in-attribute"
+            }
+          ]
+        }
+      ]
+    },
+    "jinja-in-attribute": {
+      "patterns": [
+        {
+          "name": "meta.tag.template.jinja",
+          "begin": "{%",
+          "end": "%}",
+          "patterns": [
+            {
+              "include": "#jinja-keywords"
+            },
+            {
+              "include": "#jinja-operators"
+            },
+            {
+              "include": "#jinja-strings"
+            },
+            {
+              "include": "#jinja-numbers"
+            },
+            {
+              "include": "#jinja-variables"
+            }
+          ]
+        },
+        {
+          "name": "meta.tag.template.value.jinja",
+          "begin": "{{",
+          "end": "}}",
+          "patterns": [
+            {
+              "include": "#jinja-filters"
+            },
+            {
+              "include": "#jinja-operators"
+            },
+            {
+              "include": "#jinja-strings"
+            },
+            {
+              "include": "#jinja-numbers"
+            },
+            {
+              "include": "#jinja-variables"
+            }
+          ]
+        }
+      ]
+    },
+    "jinja-comments": {
+      "name": "comment.block.jinja",
+      "begin": "{#",
+      "end": "#}",
+      "patterns": [
+        {
+          "name": "comment.block.jinja",
+          "match": ".*"
+        }
+      ]
+    },
+    "jinja-statements": {
+      "name": "meta.tag.template.jinja",
+      "begin": "{%",
+      "end": "%}",
+      "patterns": [
+        {
+          "include": "#jinja-keywords"
+        },
+        {
+          "include": "#jinja-operators"
+        },
+        {
+          "include": "#jinja-strings"
+        },
+        {
+          "include": "#jinja-numbers"
+        },
+        {
+          "include": "#jinja-variables"
+        }
+      ]
+    },
+    "jinja-expressions": {
+      "name": "meta.tag.template.value.jinja",
+      "begin": "{{",
+      "end": "}}",
+      "patterns": [
+        {
+          "include": "#jinja-filters"
+        },
+        {
+          "include": "#jinja-operators"
+        },
+        {
+          "include": "#jinja-strings"
+        },
+        {
+          "include": "#jinja-numbers"
+        },
+        {
+          "include": "#jinja-variables"
+        }
+      ]
+    },
+    "jinja-keywords": {
+      "name": "keyword.control.jinja",
+      "match": "\\b(if|elif|else|endif|for|endfor|in|block|endblock|extends|include|import|from|macro|endmacro|set|with|endwith|autoescape|endautoescape|raw|endraw|filter|endfilter|call|endcall|do|trans|endtrans|pluralize|ignore|missing|scoped|recursive|required|optional)\\b"
+    },
+    "jinja-filters": {
+      "name": "support.function.jinja",
+      "match": "\\|\\s*([a-zA-Z_][a-zA-Z0-9_]*)",
+      "captures": {
+        "1": {
+          "name": "support.function.jinja"
+        }
+      }
+    },
+    "jinja-operators": {
+      "name": "keyword.operator.jinja",
+      "match": "(\\+|\\-|\\*|\\/|\\/\\/|%|\\*\\*|==|!=|<|>|<=|>=|and|or|not|is|in)"
+    },
+    "jinja-strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.single.jinja",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.jinja",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.double.jinja",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.jinja",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "jinja-numbers": {
+      "name": "constant.numeric.jinja",
+      "match": "\\b([0-9]+\\.?[0-9]*)\\b"
+    },
+    "jinja-variables": {
+      "name": "variable.other.jinja",
+      "match": "\\b[a-zA-Z_][a-zA-Z0-9_\\.]*\\b"
+    }
+  }
+}
