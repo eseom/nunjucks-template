@@ -102,6 +102,13 @@ export interface SubscriptAccessNode extends ExpressionNode {
   index: ExpressionNode
 }
 
+export interface UnaryOperationNode extends ExpressionNode {
+  type: 'Expression'
+  expressionType: 'UnaryOperation'
+  operator: string
+  operand: ExpressionNode
+}
+
 // Specific template tags
 export interface IfStatementNode extends TemplateNode {
   type: 'TemplateTag'

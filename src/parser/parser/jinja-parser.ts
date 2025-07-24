@@ -390,20 +390,16 @@ export class JinjaParser extends HTMLParser {
   }
 
   private parseExpression(): ExpressionNode {
-    return this.parseComparisonExpression()
+    return this.parseLogicalOrExpression()
   }
 
-  private parseComparisonExpression(): ExpressionNode {
-    let expr = this.parseFilterExpression()
+  private parseLogicalOrExpression(): ExpressionNode {
+    let expr = this.parseLogicalAndExpression()
 
-    while (this.check(TokenType.EQ) || this.check(TokenType.STRICT_EQ) || 
-           this.check(TokenType.NE) || this.check(TokenType.STRICT_NE) ||
-           this.check(TokenType.LT) || this.check(TokenType.LE) ||
-           this.check(TokenType.GT) || this.check(TokenType.GE)) {
-      
+    while (this.check(TokenType.OR)) {
       const operator = this.advance()
       this.skipWhitespace()
-      const right = this.parseFilterExpression()
+      const right = this.parseLogicalAndExpression()
 
       expr = {
         type: 'Expression',
@@ -417,8 +413,45 @@ export class JinjaParser extends HTMLParser {
     return expr
   }
 
+  private parseLogicalAndExpression(): ExpressionNode {
+    let expr = this.parseLogicalNotExpression()
+
+    while (this.check(TokenType.AND)) {
+      const operator = this.advance()
+      this.skipWhitespace()
+      const right = this.parseLogicalNotExpression()
+
+      expr = {
+        type: 'Expression',
+        expressionType: 'BinaryOperation',
+        operator: operator.value,
+        left: expr,
+        right: right,
+      } as any
+    }
+
+    return expr
+  }
+
+  private parseLogicalNotExpression(): ExpressionNode {
+    if (this.check(TokenType.NOT)) {
+      const operator = this.advance()
+      this.skipWhitespace()
+      const operand = this.parseLogicalNotExpression()
+
+      return {
+        type: 'Expression',
+        expressionType: 'UnaryOperation',
+        operator: operator.value,
+        operand: operand,
+      } as any
+    }
+
+    return this.parseFilterExpression()
+  }
+
   private parseFilterExpression(): ExpressionNode {
-    let expr = this.parsePrimaryExpression()
+    let expr = this.parseComparisonExpression()
 
     while (this.check(TokenType.PIPE)) {
       this.advance() // |
@@ -448,6 +481,30 @@ export class JinjaParser extends HTMLParser {
         filterName,
         arguments: args,
       } as FilterNode
+    }
+
+    return expr
+  }
+
+  private parseComparisonExpression(): ExpressionNode {
+    let expr = this.parsePrimaryExpression()
+
+    while (this.check(TokenType.EQ) || this.check(TokenType.STRICT_EQ) || 
+           this.check(TokenType.NE) || this.check(TokenType.STRICT_NE) ||
+           this.check(TokenType.LT) || this.check(TokenType.LE) ||
+           this.check(TokenType.GT) || this.check(TokenType.GE)) {
+      
+      const operator = this.advance()
+      this.skipWhitespace()
+      const right = this.parsePrimaryExpression()
+
+      expr = {
+        type: 'Expression',
+        expressionType: 'BinaryOperation',
+        operator: operator.value,
+        left: expr,
+        right: right,
+      } as any
     }
 
     return expr

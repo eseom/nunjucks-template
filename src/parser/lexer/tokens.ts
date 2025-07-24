@@ -67,6 +67,11 @@ export enum TokenType {
   GT = 'GT', // >
   GE = 'GE', // >=
 
+  // 논리 연산자
+  AND = 'AND', // and
+  OR = 'OR', // or
+  NOT = 'NOT', // not
+
   // 리터럴
   IDENTIFIER = 'IDENTIFIER',
   STRING = 'STRING',

@@ -339,6 +339,12 @@ export class Tokenizer {
           return TokenType.ENDMACRO
         case 'set':
           return TokenType.SET
+        case 'and':
+          return TokenType.AND
+        case 'or':
+          return TokenType.OR
+        case 'not':
+          return TokenType.NOT
         case 'true':
         case 'false':
           return TokenType.BOOLEAN

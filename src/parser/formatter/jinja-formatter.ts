@@ -249,6 +249,9 @@ export class JinjaFormatter extends BaseFormatter {
         const left = this.formatExpression(expr.left)
         const right = this.formatExpression(expr.right)
         return `${left} ${expr.operator} ${right}`
+      case 'UnaryOperation':
+        const operand = this.formatExpression(expr.operand)
+        return `${expr.operator} ${operand}`
       default:
         return String(expr.value || expr.name || '')
     }
