@@ -135,18 +135,13 @@
       },
       {
         "language": "njk",
-        "scopeName": "source.njk",
-        "path": "./assets/syntaxes/njk.json"
-      },
-      {
-        "language": "njk",
-        "scopeName": "text.html.njk",
-        "path": "./assets/syntaxes/njk-html.json"
+        "scopeName": "text.html.jinja",
+        "path": "./assets/syntaxes/jinja.json"
       },
       {
         "language": "twig",
-        "scopeName": "text.html.twig",
-        "path": "./assets/syntaxes/twig.json"
+        "scopeName": "text.html.jinja",
+        "path": "./assets/syntaxes/jinja.json"
       }
     ]
   },
