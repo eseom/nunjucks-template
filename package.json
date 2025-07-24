@@ -28,6 +28,11 @@
           "type": "number",
           "default": 0,
           "description": "empty lines number to keep at formatting"
+        },
+        "nunjucksTemplate.useNewParser": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use new experimental Jinja/Nunjucks parser instead of prettydiff"
         }
       }
     },

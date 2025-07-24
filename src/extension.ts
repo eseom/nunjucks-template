@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { createLanguageConfiguration } from './functions';
+import { NewNunjucksFormatter } from './parser/new-nunjucks-formatter';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const prettydiff = require('prettydiff');
@@ -31,6 +32,29 @@ const prettyDiffWrapper = (
     throw new Error('No active editor found');
   }
 
+  // 새 파서 사용 여부 확인
+  const useNewParser = nunjucksTemplateConfig.get<boolean>('useNewParser');
+  
+  if (useNewParser) {
+    const newFormatter = new NewNunjucksFormatter();
+    const activeEditorOptions = activeEditor.options;
+    const indent_size = (activeEditorOptions.tabSize as number) || workspaceConfig.get<number>('tabSize') || 2;
+    const inchar = activeEditorOptions.insertSpaces ? ' ' : '\t';
+    const preserve = nunjucksTemplateConfig.get<number>('preserveEmptyLine') || 0;
+
+    const formattingOptions = {
+      indentSize: indent_size,
+      indentChar: inchar,
+      maxLineLength: htmlConfig.get<number>('format.wrapLineLength') || 120,
+      preserveEmptyLines: preserve,
+      insertFinalNewline: true
+    };
+
+    const formatted = newFormatter.format(source, formattingOptions);
+    return vscode.TextEdit.replace(range, formatted);
+  }
+
+  // 기존 prettydiff 로직
   const activeEditorOptions = activeEditor.options;
   const indent_size = (activeEditorOptions.tabSize as number) || workspaceConfig.get<number>('tabSize') || 2;
   const inchar = activeEditorOptions.insertSpaces ? ' ' : '\t';
