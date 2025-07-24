@@ -17,6 +17,38 @@ interface PrettyDiffOptions {
   [key: string]: any;
 }
 
+/**
+ * Detect template engine based on file extension and content
+ */
+function detectTemplateEngine(document: vscode.TextDocument): string {
+  const fileName = document.fileName.toLowerCase();
+  
+  // Detect by file extension
+  if (fileName.endsWith('.jinja') || fileName.endsWith('.jinja2') || fileName.endsWith('.j2')) {
+    return 'jinja2';
+  }
+  if (fileName.endsWith('.njk') || fileName.endsWith('.nunjucks')) {
+    return 'nunjucks';
+  }
+  if (fileName.endsWith('.twig')) {
+    return 'twig';
+  }
+  
+  // Check language ID
+  if (document.languageId === 'jinja' || document.languageId === 'jinja2') {
+    return 'jinja2';
+  }
+  if (document.languageId === 'njk' || document.languageId === 'nunjucks') {
+    return 'nunjucks';
+  }
+  if (document.languageId === 'twig') {
+    return 'twig';
+  }
+  
+  // Default to jinja2 for universal compatibility
+  return 'jinja2';
+}
+
 const prettyDiffWrapper = (
   document: vscode.TextDocument,
   range: vscode.Range,
@@ -25,7 +57,7 @@ const prettyDiffWrapper = (
   const source = document.getText(range);
   const workspaceConfig = vscode.workspace.getConfiguration('editor');
   const htmlConfig = vscode.workspace.getConfiguration('html');
-  const nunjucksTemplateConfig = vscode.workspace.getConfiguration('nunjucksTemplate');
+  const jinja2Config = vscode.workspace.getConfiguration('jinja2Formatter');
   const activeEditor = vscode.window.activeTextEditor;
   
   if (!activeEditor) {
@@ -33,14 +65,14 @@ const prettyDiffWrapper = (
   }
 
   // 새 파서 사용 여부 확인
-  const useNewParser = nunjucksTemplateConfig.get<boolean>('useNewParser');
+  const useNewParser = jinja2Config.get<boolean>('useNewParser');
   
   if (useNewParser) {
     const newFormatter = new NewNunjucksFormatter();
     const activeEditorOptions = activeEditor.options;
     const indent_size = (activeEditorOptions.tabSize as number) || workspaceConfig.get<number>('tabSize') || 2;
     const inchar = activeEditorOptions.insertSpaces ? ' ' : '\t';
-    const preserve = nunjucksTemplateConfig.get<number>('preserveEmptyLine') || 0;
+    const preserve = jinja2Config.get<number>('preserveEmptyLine') || 0;
 
     const formattingOptions = {
       indentSize: indent_size,
@@ -59,7 +91,7 @@ const prettyDiffWrapper = (
   const indent_size = (activeEditorOptions.tabSize as number) || workspaceConfig.get<number>('tabSize') || 2;
   const inchar = activeEditorOptions.insertSpaces ? ' ' : '\t';
   const wrap = htmlConfig.get<number>('format.wrapLineLength') || 120;
-  const preserve = nunjucksTemplateConfig.get<number>('preserveEmptyLine') || 0;
+  const preserve = jinja2Config.get<number>('preserveEmptyLine') || 0;
 
   const prettydiffOptions: PrettyDiffOptions = {
     // Basic configuration
@@ -144,72 +176,120 @@ const prettyDiffWrapper = (
 };
 
 export function activate(context: vscode.ExtensionContext): void {
-  // Register document formatting provider
-  const formattingProvider = vscode.languages.registerDocumentFormattingEditProvider('njk', {
-    provideDocumentFormattingEdits(
-      document: vscode.TextDocument,
-      options: vscode.FormattingOptions,
-      token: vscode.CancellationToken
-    ): vscode.ProviderResult<vscode.TextEdit[]> {
-      const replacements: vscode.TextEdit[] = [];
+  const supportedLanguages = ['jinja', 'jinja2', 'njk', 'nunjucks', 'twig'];
 
-      // Process frontmatter
-      let frontmatterStarted = false;
-      let lineToStart = 0;
-      for (let i = 0; i <= document.lineCount; i++) {
-        const line = document.lineAt(i).text.trim();
-        if (line !== '---' && !frontmatterStarted) {
-          lineToStart = 0;
-          break;
-        }
-        if (line === '---') {
-          if (!frontmatterStarted) {
-            frontmatterStarted = true;
-            continue;
+  // Register document formatting provider for all supported languages
+  supportedLanguages.forEach(languageId => {
+    const formattingProvider = vscode.languages.registerDocumentFormattingEditProvider(languageId, {
+      provideDocumentFormattingEdits(
+        document: vscode.TextDocument,
+        options: vscode.FormattingOptions,
+        token: vscode.CancellationToken
+      ): vscode.ProviderResult<vscode.TextEdit[]> {
+        const jinja2Config = vscode.workspace.getConfiguration('jinja2Formatter');
+        const useNewParser = jinja2Config.get<boolean>('useNewParser', true);
+        
+        // Use new parser by default for better results
+        if (useNewParser) {
+          try {
+            const formatter = new NewNunjucksFormatter();
+            const indentSize = jinja2Config.get<number>('indentSize', 2);
+            const maxLineLength = jinja2Config.get<number>('maxLineLength', 120);
+            const preserveEmptyLines = jinja2Config.get<number>('preserveEmptyLine', 1);
+            
+            const formattedText = formatter.format(document.getText(), {
+              indentSize,
+              indentChar: ' ',
+              maxLineLength,
+              preserveEmptyLines,
+              insertFinalNewline: true
+            });
+            
+            const fullRange = new vscode.Range(
+              new vscode.Position(0, 0),
+              new vscode.Position(document.lineCount - 1, document.lineAt(document.lineCount - 1).text.length)
+            );
+            
+            return [vscode.TextEdit.replace(fullRange, formattedText)];
+          } catch (error) {
+            console.error('New parser formatting error:', error);
+            vscode.window.showErrorMessage(`Jinja2 formatting failed: ${error}`);
+            return [];
           }
-          if (frontmatterStarted) {
-            lineToStart = i + 1;
+        }
+        
+        // Fallback to prettydiff for compatibility
+        const replacements: vscode.TextEdit[] = [];
+
+        // Process frontmatter
+        let frontmatterStarted = false;
+        let lineToStart = 0;
+        for (let i = 0; i <= document.lineCount; i++) {
+          const line = document.lineAt(i).text.trim();
+          if (line !== '---' && !frontmatterStarted) {
+            lineToStart = 0;
             break;
           }
+          if (line === '---') {
+            if (!frontmatterStarted) {
+              frontmatterStarted = true;
+              continue;
+            }
+            if (frontmatterStarted) {
+              lineToStart = i + 1;
+              break;
+            }
+          }
         }
-      }
 
-      if (lineToStart !== 0) {
-        replacements.push(
-          vscode.TextEdit.replace(
-            new vscode.Range(
-              new vscode.Position(lineToStart, 0),
-              new vscode.Position(lineToStart, 0)
-            ),
-            '\n'
-          )
+        if (lineToStart !== 0) {
+          replacements.push(
+            vscode.TextEdit.replace(
+              new vscode.Range(
+                new vscode.Position(lineToStart, 0),
+                new vscode.Position(lineToStart, 0)
+              ),
+              '\n'
+            )
+          );
+        }
+
+        // Formatting
+        const start = new vscode.Position(lineToStart, 0);
+        const end = new vscode.Position(
+          document.lineCount - 1,
+          document.lineAt(document.lineCount - 1).text.length
         );
-      }
+        const range = new vscode.Range(start, end);
+        
+        try {
+          replacements.push(prettyDiffWrapper(document, range, options));
+        } catch (error) {
+          console.error('Formatting error:', error);
+          vscode.window.showErrorMessage('Jinja2 formatting failed: ' + error);
+        }
 
-      // Formatting
-      const start = new vscode.Position(lineToStart, 0);
-      const end = new vscode.Position(
-        document.lineCount - 1,
-        document.lineAt(document.lineCount - 1).text.length
-      );
-      const range = new vscode.Range(start, end);
-      
-      try {
-        replacements.push(prettyDiffWrapper(document, range, options));
-      } catch (error) {
-        console.error('Formatting error:', error);
-        vscode.window.showErrorMessage('Nunjucks formatting failed: ' + error);
-      }
+        return replacements;
+      },
+    });
 
-      return replacements;
-    },
+    context.subscriptions.push(formattingProvider);
   });
 
-  // Configure language settings
-  vscode.languages.setLanguageConfiguration('njk', createLanguageConfiguration());
+  // Configure language settings for all supported languages
+  supportedLanguages.forEach(languageId => {
+    vscode.languages.setLanguageConfiguration(languageId, createLanguageConfiguration());
+  });
 
-  // Add to subscriptions
-  context.subscriptions.push(formattingProvider);
+  // Register format command
+  const formatCommand = vscode.commands.registerCommand('jinja2Formatter.formatDocument', () => {
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+      vscode.commands.executeCommand('editor.action.formatDocument');
+    }
+  });
+
+  context.subscriptions.push(formatCommand);
 }
 
 export function deactivate(): void {

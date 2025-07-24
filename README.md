@@ -1,32 +1,107 @@
-# nunjucks-template
+# Jinja2 Formatter
 
-This is the Nunjucks-supporting extension for vscode with complete features.
+**Universal formatter and syntax highlighting for Jinja2 template family**
 
-# feature
+A comprehensive VS Code extension that provides formatting, syntax highlighting, and snippets for multiple template engines in the Jinja2 family.
 
-- nunjucks template syntax
-- nunjucks formatter with prettydiff2
-- yaml syntax
+## Supported Template Engines
 
-## configurations
+- **Jinja2** (`.jinja`, `.jinja2`, `.j2`) - Python templating engine
+- **Nunjucks** (`.njk`, `.nunjucks`) - JavaScript port of Jinja2  
+- **Twig** (`.twig`) - PHP templating engine
+- **Django Templates** (`.html` with Django syntax) - Django's template system
 
-- By default, detects .nj, .njk files automatically.
-- Additionally, use `files.associations`
+## Features
 
-#### extension's own configurations
+✅ **Advanced Formatting**
+- Smart indentation for nested template blocks
+- Proper handling of `{% if %}`, `{% for %}`, `{% macro %}`, etc.
+- Support for complex expressions and filters
+- Keyword argument formatting in function calls
+
+✅ **Syntax Highlighting**
+- Template tags: `{% %}` 
+- Variable expressions: `{{ }}`
+- Comments: `{# #}`
+- Mixed HTML + template syntax
+
+✅ **Auto-Detection**
+- Automatically detects template engine based on file extension
+- Fallback to universal Jinja2 syntax
+
+✅ **Modern Parser**
+- Built-in AST-based parser (replaces outdated prettydiff)
+- Better error handling and edge case support
+
+## Configuration
+
+## Configuration
+
+### Extension Settings
 
 ```json
-"nunjucksTemplate.preserveEmptyLine": 3
+{
+  "jinja2Formatter.preserveEmptyLine": 1,
+  "jinja2Formatter.useNewParser": true,
+  "jinja2Formatter.indentSize": 2,
+  "jinja2Formatter.maxLineLength": 120,
+  "jinja2Formatter.templateEngine": "auto"
+}
 ```
 
-(suggested at issue PR #30 by @sdegutis)
+### File Associations
 
-#### other configurations
+Associate your template files with the appropriate language:
 
 ```json
-"files.associations": {
-  "*.html": "njk"
-},
+{
+  "files.associations": {
+    "*.html": "jinja",
+    "*.htm": "jinja", 
+    "*.j2": "jinja",
+    "*.jinja": "jinja",
+    "*.jinja2": "jinja",
+    "*.njk": "njk",
+    "*.nunjucks": "njk",
+    "*.twig": "twig"
+  }
+}
+```
+
+## Usage
+
+1. **Automatic Formatting**: The extension will format your templates when you save (if format on save is enabled)
+2. **Manual Formatting**: Use `Ctrl+Shift+P` → "Format Document" or `Alt+Shift+F`
+3. **Custom Command**: Use `Ctrl+Shift+P` → "Format Jinja2 Template"
+
+## Template Examples
+
+### Jinja2/Nunjucks
+```jinja
+{% extends "base.html" %}
+
+{% block content %}
+  {% for item in items %}
+    <div class="item {% if item.featured %}featured{% endif %}">
+      <h2>{{ item.title|title }}</h2>
+      <p>{{ item.description|truncate(100) }}</p>
+    </div>
+  {% endfor %}
+{% endblock %}
+```
+
+### Twig
+```twig
+{% extends "base.html.twig" %}
+
+{% block content %}
+  {% for item in items %}
+    <div class="item {{ item.featured ? 'featured' : '' }}">
+      <h2>{{ item.title|title }}</h2>
+      <p>{{ item.description|truncate(100) }}</p>
+    </div>
+  {% endfor %}
+{% endblock %}
 ```
 
 - For vscode embedded emmet, notify that `njk` is html file type
