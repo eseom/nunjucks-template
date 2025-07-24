@@ -36,6 +36,51 @@ async function testParser() {
     
     console.log('\n✨ Parsing completed successfully!');
     
+    // 🔄 이중 포매팅 테스트 - 결과물을 다시 포매터에 돌리기
+    console.log('\n🔄 Testing formatter idempotency (double formatting)...');
+    console.log('=' .repeat(60));
+    
+    try {
+      const secondResult = formatter.format(result, {
+        indentSize: 2,
+        indentChar: ' ',
+        maxLineLength: 100,
+        insertFinalNewline: true
+      });
+      
+      console.log('✅ Second formatting result:');
+      console.log('=' .repeat(50));
+      console.log(secondResult);
+      console.log('=' .repeat(50));
+      
+      // 결과 비교
+      if (result === secondResult) {
+        console.log('\n🎉 SUCCESS: Formatter is idempotent! First and second results are identical.');
+      } else {
+        console.log('\n⚠️  WARNING: Formatter results differ between first and second run.');
+        console.log('This indicates the formatter is not fully stable.');
+        
+        // 차이점 분석
+        const lines1 = result.split('\n');
+        const lines2 = secondResult.split('\n');
+        const maxLines = Math.max(lines1.length, lines2.length);
+        
+        console.log('\n📊 Differences:');
+        for (let i = 0; i < maxLines; i++) {
+          const line1 = lines1[i] || '<missing>';
+          const line2 = lines2[i] || '<missing>';
+          if (line1 !== line2) {
+            console.log(`Line ${i + 1}:`);
+            console.log(`  First:  "${line1}"`);
+            console.log(`  Second: "${line2}"`);
+          }
+        }
+      }
+      
+    } catch (secondError) {
+      console.error('❌ Second formatting failed:', secondError);
+    }
+    
   } catch (error) {
     console.error('❌ Parsing failed:');
     console.error(error);

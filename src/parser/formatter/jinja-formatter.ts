@@ -167,7 +167,22 @@ export class JinjaFormatter extends BaseFormatter {
 
   private formatRawStatement(node: any, options: FormattingOptions, indentLevel: number): string {
     const indent = this.getIndent(options, indentLevel);
-    return `${indent}{% raw %}\n${node.content}\n${indent}{% endraw %}`;
+    
+    // Raw 블록의 내용을 그대로 유지 (원래 줄바꿈 및 공백 보존)
+    let content = node.content;
+    if (typeof content !== 'string') {
+      content = '';
+    }
+    
+    // 시작과 끝의 불필요한 줄바꿈 제거 (있다면)
+    content = content.trim();
+    
+    // 내용이 있으면 앞뒤로 줄바꿈 추가, 없으면 한 줄로
+    if (content) {
+      return `${indent}{% raw %}\n${content}\n${indent}{% endraw %}`;
+    } else {
+      return `${indent}{% raw %}{% endraw %}`;
+    }
   }
 
   private formatVariableTag(node: any, options: FormattingOptions, indentLevel: number): string {
@@ -202,8 +217,18 @@ export class JinjaFormatter extends BaseFormatter {
         return `${object}.${property}`;
       case 'FunctionCall':
         const funcName = this.formatExpression(expr.function);
-        const funcArgs = expr.arguments ? expr.arguments.map((arg: any) => this.formatExpression(arg)).join(', ') : '';
+        const funcArgs = expr.arguments ? expr.arguments.map((arg: any) => {
+          // 키워드 인수 처리
+          if (arg.expressionType === 'KeywordArgument') {
+            const value = this.formatExpression(arg.value);
+            return `${arg.key}=${value}`;
+          }
+          return this.formatExpression(arg);
+        }).join(', ') : '';
         return `${funcName}(${funcArgs})`;
+      case 'KeywordArgument':
+        const value = this.formatExpression(expr.value);
+        return `${expr.key}=${value}`;
       default:
         return String(expr.value || expr.name || '');
     }
