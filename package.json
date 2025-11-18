@@ -86,7 +86,7 @@
     "@vscode/test-cli": "^0.0.4",
     "@vscode/test-electron": "^2.3.8",
     "eslint": "^8.56.0",
-    "glob": "^10.3.10",
+    "glob": "^11.1.0",
     "mocha": "^10.2.0",
     "typescript": "^5.2.2"
   },
